@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arhitectura Sistemelor de Calcul</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <style>
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --primary: #000000;
+    --secondary: #666666;
+    --accent: #000000;
+    --light-gray: #f0f0f0;
+    --transition: all 0.3s ease-in-out;
+}
+
+@font-face {
+    font-family: 'Neue Montreal';
+    src: url('fonts/NeueMontreal-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 0.8rem 3rem; /* Consistent padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000; /* Increased from 100 to ensure it's above all content */
+    background-color: var(--primary); /* Always black */
+    transition: transform 0.4s ease-in-out; /* Animate transform */
+    transform: translateY(0); /* Start visible */
+}
+
+header a{
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+header.header-hidden {
+    transform: translateY(-100%); /* Move header off-screen */
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: white; /* Change logo color to white */
+    transition: var(--transition);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    z-index: 999; /* High z-index but still below header */
+}
+
+.nav-links a {
+    color: white; /* Change link color to white */
+    text-decoration: none;
+    font-size: 1rem;
+    position: relative;
+    transition: var(--transition);
+}
+
+.nav-links a:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: white; /* Underline color white */
+    transition: var(--transition);
+}
+
+.nav-links a:hover:after {
+    width: 100%;
+}
+
+/* Hide original nav links on desktop */
+@media (min-width: 769px) { /* Apply above mobile breakpoint */
+    .nav-links {
+        display: none;
+    }
+}
+
+/* Search Bar Styles */
+.search-form {
+    display: flex;
+    align-items: center;
+}
+
+.search-form input[type="search"] {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--secondary);
+    border-radius: 20px; /* Rounded corners */
+    background-color: #333; /* Dark background for input */
+    color: white;
+    font-size: 0.9rem;
+    width: 250px; /* Adjust width as needed */
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    margin-right: 0.5rem; /* Space before potential button */
+}
+
+.search-form input[type="search"]::placeholder {
+    color: var(--secondary);
+}
+
+.search-form input[type="search"]:focus {
+    outline: none;
+    border-color: white;
+    background-color: #444;
+    width: 300px; /* Expand on focus */
+}
+/* Optional: Add a search button/icon if needed */
+
+/* Hero Section */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10%;
+    position: relative;
+}
+
+.hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+.hero h1 {
+    font-size: clamp(3rem, 8vw, 8rem);
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 2rem;
+    color: white;
+    opacity: 0;
+    animation: fadeInBottom 1s ease forwards;
+    animation-delay: 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    text-shadow: 0 0 10px rgba(0, 0, 0); /* Added shadow for better visibility */
+}
+
+.hero h1 .changing-text {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-shadow: 0 0 10px rgba(0, 0, 0); /* Added shadow for better visibility */
+
+}
+
+.hero h1 .changing-text::after {
+    content: "sistemelor de calcul";
+    animation: textChange 10s linear infinite;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin-bottom: 3rem;
+    color: var(--light-gray); /* Changed from var(--secondary) to white for better visibility */
+    background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent black background */
+    padding: 1rem;
+    border-radius: 4px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 20px;
+    opacity: 0;
+    animation: fadeInBottom 1s ease forwards;
+    animation-delay: 0.6s;
+}
+
+.scroll-down {
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    opacity: 0;
+    animation: fadeInBottom 1s ease forwards;
+    animation-delay: 0.9s;
+}
+.scroll-down:hover {
+    color: rgb(143, 143, 143); /* Change color on hover */
+}
+.scroll-down span {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.scroll-down:after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 60px;
+    background-color: var(--secondary);
+    margin-top: 0.5rem;
+}
+
+/* Add this animation keyframe after your existing keyframes */
+@keyframes fadeInBottom {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Update keyframe animations */
+@keyframes textChange {
+    0%, 45% {
+        content: "sistemelor de calcul";
+        opacity: 1;
+    }
+    48%, 52% {
+        opacity: 0;
+    }
+    55%, 95% {
+        content: "calculatorului";
+        opacity: 1;
+    }
+    98% {
+        opacity: 0;
+    }
+}
+
+/* Page/Section base styles (will be refined) */
+.page-section {
+    padding: 4rem 6%;
+    margin: 4rem auto;
+}
+
+.page-section h2 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+    line-height: 1.7;
+    text-align: center;
+}
+
+.page-section p {
+    font-size: 1.1rem;
+    color: var(--secondary);
+    max-width: 750px;
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-section img {
+    max-width: 100%;
+    height: auto;
+    margin: 2rem 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: block;
+}
+
+/* Styling for Sub-sections within a page-section */
+.sub-section {
+    padding: 4rem 1rem;
+    position: relative;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    max-width: 85%;
+    margin: 0 auto;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 20px;
+    /* Add blur effect and transparency */
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Adjust hover effect to maintain blur */
+.sub-section:hover {
+    transform: translate(4px, -7px);
+    box-shadow: -5px 15px 35px rgba(0, 0, 0, 0.5);
+    z-index: 2; /* Lower z-index to stay below header and nav */
+    background: rgba(255, 255, 255, 0.15); /* Slightly more opaque on hover */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Special styling for dark sections (software and gallery) */
+.software-section .sub-section,
+.gallery-section .sub-section {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.software-section .sub-section:hover,
+.gallery-section .sub-section:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Styling for Nested Sub-sections (like ROM/RAM) */
+.nested-sub-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    margin-left: 2rem;
+    border: 1px dashed var(--light-gray);
+}
+
+.nested-sub-section h4 {
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--secondary);
+}
+
+/* Center align all text within main content */
+main#main-content {
+    text-align: center;
+}
+
+/* Grid layout for sub-sections */
+.sub-section-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+    gap: 1rem; /* Spacing between grid items */
+    margin-top: 3rem; /* Space between intro paragraph and grid */
+}
+
+/* Gallery */
+.gallery {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.gallery-container {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.gallery-slide {
+    min-width: 100%;
+    padding: 10px;
+}
+
+.gallery-slide img {
+    width: auto; /* Allow natural width */
+    max-width: 70%; /* Limit image width to 70% of the slide */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Needed for margin auto to work */
+    margin: 0 auto; /* Center image horizontally */
+    border-radius: 5px;
+}
+
+.gallery-nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.gallery-nav button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.gallery-nav button:hover {
+    background-color: #34495e;
+}
+
+/* Footer */
+footer {
+    padding: 5rem 10% 2rem 10%;
+    background-color: var(--primary);
+    color: white;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.footer-col h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-col a {
+    color: rgba(255, 255, 255, 0.397);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-col a:hover {
+    color: white;
+}
+
+.footer-col img{
+    transition: var(--transition);
+    filter: brightness(0) invert(1); /* Makes the images white */
+    border-radius: 8px;
+}
+
+.footer-col img:hover{
+    box-shadow: 0 0 30px var(--bg);
+    filter: brightness(0) invert(1); /* Keep images white on hover */
+}
+
+.copyright {
+    padding-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+}
+
+/* Mobile Menu */
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    z-index: 101;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-image {
+        height: 400px;
+    }
+    
+    .gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1.5rem;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--bg);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+    
+    .nav-links.active {
+        right: 0;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .hero {
+        padding: 0 1.5rem;
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.page-section img,
+.sub-section img,
+.nested-sub-section img {
+    z-index: 1; /* Bring hovered item slightly forward if needed */
+}
+
+/* Specific Section Styling */
+.software-section,
+.gallery-section /* Moved from .about-section */ {
+    background-color: var(--primary); /* Black background */
+    color: white; /* Default text color white */
+}
+
+#software-particles,
+#gallery-particles,
+#hardware-particles,
+#despre-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.software-section,
+.gallery-section,
+.hardware-section,
+.about-section {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Adjust text colors within black sections */
+.software-section h2,
+.software-section h3,
+.gallery-section h2 /* Moved from .about-section */ {
+    color: white;
+}
+
+.software-section p,
+.gallery-section p /* Moved from .about-section */ {
+    color: rgba(255, 255, 255, 0.8); /* Slightly off-white for paragraphs */
+}
+
+/* Add inner shadow to sub-sections in dark sections */
+.software-section .sub-section {
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1); /* Subtle white inner glow */
+    /* Note: This overrides the hover shadow. We need to combine or adjust. */
+}
+
+/* Adjust hover effect for dark sections to keep inner shadow */
+.software-section .sub-section:hover {
+    transform: translateY(-5px); /* Keep the transform */
+    /* Combine inner shadow with a subtle outer glow */
+    box-shadow: inset 0 0 20px rgb(213, 213, 213), 0 0 15px rgba(255, 255, 255, 0.1);
+    z-index: 1;
+    border-color: #666; /* Keep border change */
+}
+
+/* Remove bottom margin from software section to connect with gallery */
+.software-section {
+    margin-bottom: 0;
+}
+
+/* Also remove top margin from gallery section */
+.gallery-section {
+    margin-top: 0;
+}
+
+/* REMOVED specific border/hover styles for sub-sections within dark sections */
+/* If gallery elements need adjustment on dark bg, add rules here */
+/* Example: .gallery-section .gallery-nav button { ... } */
+
+/* Remove margin override for first sub-section as it's handled by grid */
+
+/* Info Toggle Section Styles */
+.info-toggle-container {
+    margin: 2rem 0 4rem 10%; /* Top/Bottom margin, 10% left margin */
+    max-width: 80%; /* Prevent it stretching too far */
+}
+
+.info-toggle-button {
+    background-color: var(--bg);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    display: inline-flex; /* Align text and arrow */
+    align-items: center;
+    font-size: 1rem;
+    border-radius: 4px;
+    color: var(--accent);
+}
+
+
+.info-toggle-button .arrow-icon {
+    margin-left: 0.75rem;
+    font-size: 0.8em; /* Make arrow slightly smaller */
+}
+
+.info-toggle-content {
+    display: none; /* Hidden by default */
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--light-gray);
+    background-color: var(--bg);
+    border-radius: 10px;
+    text-align: center; /* Override main center align */
+}
+
+.info-toggle-content.active {
+    display: block; /* Show when active */
+}
+
+.info-toggle-content.active a{
+    color: var(--secondary); /* Change link color when active */
+    transition: var(--transition);
+    text-decoration: none;
+}
+.info-toggle-content.active a:hover
+{
+    color: var(--primary); /* Change link color on hover when active */
+}
+
+/* Remove margin override for first sub-section as it's handled by grid */
+
+/* Style for the "Show More" button */
+.show-more-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 1rem; /* Space above button */
+    align-self: center; /* Center button horizontally */
+    transition: background-color 0.3s ease;
+}
+
+.show-more-btn:hover {
+    background-color: var(--secondary);
+}
+.show-more-btn a{
+    color: white;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+/* Styles for dark section buttons */
+.software-section .show-more-btn {
+    background-color: white;
+    color: var(--accent);
+}
+
+.software-section .show-more-btn:hover {
+    background-color: var(--light-gray);
+}
+.software-section .show-more-btn a{
+    color: var(--accent);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+
+/* Initially hide details content */
+.details-content {
+    display: none;
+    /* background: rgba(40, 40, 40, 0.95); */
+    /* backdrop-filter: blur(10px); */
+    /* -webkit-backdrop-filter: blur(10px); */
+    color: white;
+    padding: 2rem;
+    /* border-radius: 15px; */
+}
+
+.details-content h2 {
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.details-content p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+}
+
+.details-content img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    margin: 1rem auto;
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Fullscreen state for sub-section */ 
+/*  .sub-section.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: none; /* Override max-width */
+    /* min-height: auto; /* Override min-height */
+    /* margin: 0;
+    padding: 3rem; /* Adjust padding for fullscreen */
+    /* background: var(--primary); Black background */
+    /* backdrop-filter: blur(10px); */
+    /* -webkit-backdrop-filter: blur(10px); */
+    /* z-index: 1000; */
+    /* overflow-y: auto; Allow scrolling within fullscreen */
+    /* text-align: center; Reset text align for content */ 
+    /* Hide original hover effect
+    transform: none !important;
+    box-shadow: none !important; */
+    /* display: block; Ensure it's block */
+    /* border-radius: 0px; */ 
+/*} */
+
+/* Remove any hover effects that might affect width in fullscreen mode */
+/* .sub-section.fullscreen:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    width: 100vw !important;
+    max-width: none !important;
+}
+
+.sub-section.fullscreen .details-content {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 3rem;
+} */
+
+/* Hide original content when fullscreen
+.sub-section.fullscreen h3,
+.sub-section.fullscreen > p, /* Target direct paragraph child */
+/* .sub-section.fullscreen .show-more-btn {
+    display: none;
+} */
+
+/* Show details content when fullscreen 
+.sub-section.fullscreen .details-content {
+    display: block;
+} */
+
+/* Close button style */
+/* .close-details-btn {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 2rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-details-btn:hover {
+    color: white;
+} */
+
+/* Adjust close button color for dark sections */
+.sub-section.fullscreen.software-section .close-details-btn {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sub-section.fullscreen.software-section .close-details-btn:hover {
+    color: white;
+}
+
+.sub-section:hover {
+    transform: translateY(-7px);
+    box-shadow: -5px 15px 35px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+.sub-section h3 {
+    font-size: clamp(2rem, 4vw, 2.5rem); /* Increased from previous values */
+    font-weight: 500;
+    margin-bottom: 1rem; /* Increased margin to accommodate larger text */
+    color: var(--text);
+    line-height: 1.3;
+}
+
+/* Change text color for software section titles */
+.software-section .sub-section h3 {
+    color: white; /* Override the default text color */
+}
+
+.prev-btn{
+    background-color: var(--accent);
+}
+.footer-col img{
+    border-radius: 40px;
+    filter: brightness(0) invert(1); /* Makes the images white */
+}
+.footer-col img:hover{
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+    filter: brightness(0) invert(1); /* Keep images white on hover */
+}
+#constellation-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Place it behind other elements */
+    pointer-events: none; /* Prevent interaction with the canvas */
+}
+
+.hardware-section {
+    position: relative;
+}
+
+#hardware-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Remove any blur effects from software section
+.software-section .details-content {
+    background: var(--primary);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.software-section.sub-section.fullscreen {
+    background: var(--primary);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+} */
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <a href="prinPage.html">
+            <div class="logo-container">
+                <svg width="33" height="43" viewBox="0 0 18 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.0023 4.86847C14.0023 4.27515 13.7658 3.70609 13.3447 3.2863L11.7281 1.67969L2.31641 11.0521C1.84958 11.5162 1.47921 12.0673 1.22652 12.674C0.973819 13.2808 0.84375 13.9312 0.84375 14.588C0.84375 15.2448 0.973819 15.8952 1.22652 16.502C1.47921 17.1087 1.84958 17.6598 2.31641 18.1238L3.89702 19.7011C3.69238 18.727 3.73484 17.7175 4.02053 16.7639C4.30622 15.8102 4.82614 14.9425 5.53327 14.2393L13.3447 6.45065C13.7658 6.03086 14.0023 5.4618 14.0023 4.86847ZM13.3424 11.0375C13.7649 11.4609 14.0022 12.0347 14.0022 12.6329C14.0022 13.2312 13.7649 13.805 13.3424 14.2284L9.38858 18.1839C8.8241 18.7451 8.37672 19.4129 8.07241 20.1486C7.76811 20.8842 7.61295 21.673 7.61595 22.4692C7.61692 22.8845 7.65997 23.2986 7.74446 23.7053L6.18599 22.1033C5.23793 21.1533 4.70544 19.8658 4.70544 18.5235C4.70544 17.1811 5.23793 15.8936 6.18599 14.9437L11.7279 9.40254L13.3424 11.0375ZM13.3021 22.7473C13.5238 22.9594 13.7 23.2126 13.8202 23.492C13.9405 23.7714 14.0024 24.0714 14.0024 24.3745C14.0024 24.6776 13.9405 24.9776 13.8202 25.257C13.7 25.5365 13.5238 25.7896 13.3021 26.0017L11.6954 27.5671L10.0621 25.9692C9.16557 25.092 8.63499 23.9208 8.57339 22.6831C8.51179 21.4454 8.92357 20.2295 9.72873 19.2716L13.3021 22.7473Z" fill="#fff"></path>
+                </svg>
+            </div>
+        </a>
+        
+
+        <!-- New Search Bar -->
+        <form class="search-form" action="#" method="get">
+            <input type="search" name="query" placeholder="Căutare...">
+            <!-- Optional: Add search button here -->
+            <!-- <button type="submit">🔍</button> -->
+        </form>
+
+        <!-- Existing Mobile Menu Toggle - might need review later -->
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+        <!-- Hero Section -->
+        <section class="hero">
+            <video autoplay muted loop class="hero-video">
+                <source src="videoPagP.mp4" type="video/mp4">
+                <!-- Fallback image if video doesn't load -->
+                <img src="computer-components-fallback.jpg" alt="Computer Components">
+            </video>
+    
+            <h1>
+                Arhitectura
+                <span class="changing-text"></span>
+            </h1>
+            <p>Explorarea componentelor hardware și software care formează baza tehnologiei contemporani.</p>
+            <a href="#hardware" class="scroll-down">
+                <span>Scroll down</span>
+            </a>
+        </section>
+
+        <!-- Info Toggle Section -->
+        <div class="info-toggle-container">
+            <button class="info-toggle-button" id="infoToggleButton">
+                Mai multe informatii?
+                <span class="arrow-icon">&#9660;</span> <!-- Down arrow -->
+            </button>
+            <div class="info-toggle-content" id="infoToggleContent">
+                <p>Scurtă istorie a calculatorului</p>
+                <p>Evoluția calculatorului este una dintre cele mai spectaculoase povești ale progresului tehnologic al umanității. De-a lungul timpului, nevoia de a calcula, procesa și stoca informații a condus la dezvoltarea unor instrumente din ce în ce mai performante, care astăzi formează baza lumii digitale moderne. Primele forme de „calculatoare” au fost dispozitive mecanice simple, precum abacul, folosit în Antichitate. În secolul XVII, matematicienii și inventatorii precum Blaise Pascal și Gottfried Wilhelm Leibniz au creat primele mașini de calcul mecanice capabile să efectueze operații aritmetice de bază. O schimbare majoră a apărut în secolul XIX, când Charles Babbage a proiectat „mașina analitică”, considerată strămoșul teoretic al calculatorului modern. Deși nu a fost construită în timpul vieții lui, conceptele sale — cum ar fi unitatea de procesare și memoria — stau la baza arhitecturii actuale a sistemelor de calcul. Calculatoarele electronice au început să prindă formă în timpul și după cel de-Al Doilea Război Mondial, odată cu apariția unor echipamente precum <a href="https://ro.wikipedia.org/wiki/ENIAC" target="_blank">ENIAC</a> (1945), primul calculator electronic de uz general. Acestea foloseau tuburi electronice și ocupau spații uriașe. În anii '50-'60 au apărut tranzistorii, care au înlocuit tuburile electronice, micșorând dimensiunile și crescând eficiența. Ulterior, circuitele integrate și apoi microprocesoarele (începând cu anii '70) au revoluționat industria IT, făcând posibilă apariția calculatoarelor personale și, ulterior, a dispozitivelor mobile. Astăzi, calculatoarele sunt omniprezente, integrate în aproape orice domeniu al vieții moderne. Evoluția lor continuă într-un ritm accelerat, deschizând drumul către tehnologii precum inteligența artificială, calculul cuantic sau realitatea augmentată.</p>
+                <!-- Add your detailed content here -->
+            </div>
+        </div>
+
+        <!-- Main Content Sections -->
+        <main id="main-content">
+            <!-- Hardware Section -->
+            <section id="hardware" class="page-section hardware-section">
+                <canvas id="hardware-particles"></canvas>
+                <h2>Hardware</h2>
+                <p>Componentele hardware ale unui sistem de calcul reprezintă partea fizică, tangibilă a calculatorului. Acestea includ toate dispozitivele electronice și mecanice care permit funcționarea sistemului.</p>
+
+                <!-- Subsections within Hardware - WRAPPED in a grid container -->
+                <div class="sub-section-grid">
+                    <div id="procesor" class="sub-section">
+                        <h3>Procesor</h3>
+                        <p>Procesorul, sau unitatea centrală de procesare (CPU), este creierul calculatorului. El execută instrucțiunile programelor și procesează datele.</p>
+                        <!-- <img src="procesorImage.png" alt="Procesor"> -->
+                        <button class="show-more-btn"><a href="procesor.html">Afiseaza mai multe</a></button>
+                    </div>
+
+                    <div id="placa-baza" class="sub-section">
+                        <h3>Placa de baza</h3>
+                        <p>Placa de bază (motherboard) este componenta principală a unui calculator, care asigură interconectarea tuturor componentelor hardware.</p>
+                        <!-- <img src="placaBaza.png" alt="Placa de baza"> -->
+                        <button class="show-more-btn"><a href="placaBaza.html">Afiseaza mai multe</a></button>
+                    </div>
+
+                    <div id="placa-video" class="sub-section">
+                        <h3>Placa video</h3>
+                        <p>Placa video (GPU) este responsabilă pentru procesarea imaginilor și afișarea lor pe monitor.</p>
+                        <!-- <img src="placaVideo.png" alt="Placa video"> -->
+                        <button class="show-more-btn"><a href="placaVideo.html">Afiseaza mai multe</a></button>
+                    </div>
+
+                    <div id="memorie" class="sub-section">
+                        <h3>Memorie</h3>
+                        <p>Memoria calculatorului este folosită pentru stocarea temporară sau permanentă a datelor și programelor.</p>
+                        <!-- <img src="https://via.placeholder.com/600x350/000000/FFFFFF/?text=Memory" alt="Memorie"> -->
+                        <button class="show-more-btn"><a href="memorie.html">Afiseaza mai multe</a></button>
+                    </div>
+
+                    <div id="sursa" class="sub-section">
+                        <h3>Sursa de alimentare</h3>
+                        <p>Sursa de alimentare convertește curentul alternativ din priză în curent continuu la tensiuni adecvate pentru componentele calculatorului.</p>
+                        <!-- <img src="https://via.placeholder.com/600x350/000000/FFFFFF/?text=PSU" alt="Sursa de alimentare"> -->
+                        <button class="show-more-btn"><a href="sursaAlim.html">Afiseaza mai multe</a></button>
+                    </div>
+
+                    <div id="periferice" class="sub-section">
+                        <h3>Dispozitive periferice</h3>
+                        <p>Dispozitivele periferice permit interacțiunea cu calculatorul (intrare/ieșire de date). Exemple: tastatură, mouse, monitor, imprimantă.</p>
+                        <!-- <img src="https://via.placeholder.com/600x350/000000/FFFFFF/?text=Peripherals" alt="Dispozitive periferice"> -->
+                        <button class="show-more-btn"><a href="periferice.html">Afiseaza mai multe</a></button>
+                    </div>
+                </div> <!-- End sub-section-grid -->
+            </section>
+
+            <!-- Software Section -->
+            <section id="software" class="page-section software-section">
+                <canvas id="software-particles"></canvas>
+                <h2>Software</h2>
+                <p>Componenta software reprezintă totalitatea programelor și datelor care determină funcționarea hardware-ului și permit rezolvarea problemelor utilizatorilor.</p>
+                <!-- <img src="https://via.placeholder.com/800x450/000000/FFFFFF/?text=Software" alt="Software"> -->
+
+                 <!-- Subsections within Software - WRAPPED in a grid container -->
+                 <div class="sub-section-grid">
+                    <div id="componenta-software" class="sub-section">
+                        <h3>Componenta software</h3>
+                        <p>Componenta software include sistemele de operare, programele aplicative, driverele și orice alt tip de program care rulează pe calculator.</p>
+                        <!-- <img src="https://via.placeholder.com/600x350/000000/FFFFFF/?text=Software+Components" alt="Componente software"> -->
+                        <button class="show-more-btn"><a href="software.html">Afiseaza mai multe</a></button>
+                    </div>
+
+                    <div id="sistem-operare" class="sub-section">
+                        <h3>Sistem de operare</h3>
+                        <p>Sistemul de operare este software-ul fundamental care gestionează resursele hardware și oferă servicii altor programe aplicative.</p>
+                        <!-- <img src="https://via.placeholder.com/600x350/000000/FFFFFF/?text=OS" alt="Sistem de operare"> -->
+                        <button class="show-more-btn"><a href="sistemOperare.html">Afiseaza mai multe</a></button>
+                    </div>
+                </div> <!-- End sub-section-grid -->
+            </section>
+
+            <!-- Galerie Section 
+            <section id="galerie" class="page-section gallery-section">
+                <canvas id="gallery-particles"></canvas>
+                <h2>Galerie foto</h2>
+                <div class="gallery">
+                    <div class="gallery-container" id="gallery-container">
+                        <div class="gallery-slide">
+                            <img src="" alt="Componente calculator 1">
+                        </div>
+                        <div class="gallery-slide">
+                            <img src="" alt="Componente calculator 2">
+                        </div>
+                        <div class="gallery-slide">
+                            <img src="" alt="Componente calculator 3">
+                        </div>
+                    </div>
+                    <div class="gallery-nav">
+                        <button id="prev-btn"><</button>
+                        <button id="next-btn">></button>
+                    </div>
+                </div>
+            </section>  -->
+
+            <!-- Despre Section -->
+            <section id="despre" class="page-section about-section">
+                <canvas id="despre-particles"></canvas>
+                <h2>Despre acest site</h2>
+                <p>Acest site este dedicat prezentării arhitecturii unui sistem de calcul, cu componentele sale hardware și software.</p>
+                <p>Scopul acestui site este informativ și educațional, oferind vizitatorilor o înțelegere clară a modului în care funcționează un calculator.</p>
+                <!-- <img src="https://via.placeholder.com/800x450/000000/FFFFFF/?text=About+Site" alt="Despre site"> -->
+            </section>
+        </main> <!-- End Main Content -->
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; margin-top: 4rem;">Resursă educațională despre sistemele de calcul.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Link-uri rapide</h3>
+                <ul>
+                    <li><a href="#hardware">Hardware</a></li>
+                    <li><a href="#software">Software</a></li>
+                    <li><a href="#galerie">Galerie</a></li>
+                    <li><a href="#despre">Despre</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Resurse</h3>
+                <ul>
+                    <li><a href="Documentatie atestat.pdf" target="_blank">Documentație</a></li>
+                    <li><a href="#">Alte proiecte ale autorului</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <ul>
+                    <li><a href="#">person@gmail.ro</a></li>
+                    <li>
+                        <a href="https://www.instagram.com" target="_blank">
+                            <img src="instaLogoRound.png" alt="Instagram" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                        <a href="#" target="_blank">
+                            <img src="facebook (4).png" alt="Facebook" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                        <a href="#" target="_blank">
+                            <img src="github-sign.png" alt="Git hub" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2025 highSchoolFinalProject. All rights reserved.
+            </div>
+        </footer>
+    
+        <script>
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            menuToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+            });
+    
+            // Close menu when clicking a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                });
+            });
+    
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    // Adjust selector for sections if needed
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        // Calculate offset dynamically based on header height
+                        const headerOffset = document.getElementById('header').offsetHeight || 80;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Auto-hide header on scroll
+            let lastScrollY = window.pageYOffset;
+            const header = document.getElementById('header');
+            const scrollThreshold = 5; // Small threshold to prevent jitter
+
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.pageYOffset;
+
+                if (currentScrollY <= 0) {
+                    // Always show header at the very top
+                    header.classList.remove('header-hidden');
+                } else if (currentScrollY > lastScrollY && currentScrollY > scrollThreshold) {
+                    // Scrolling down
+                    header.classList.add('header-hidden');
+                } else if (currentScrollY < lastScrollY) {
+                    // Scrolling up
+                    header.classList.remove('header-hidden');
+                }
+
+                lastScrollY = currentScrollY;
+            });
+
+            // Info Toggle Button
+            const infoBtn = document.getElementById('infoToggleButton');
+            const infoContent = document.getElementById('infoToggleContent');
+            const arrowIcon = infoBtn ? infoBtn.querySelector('.arrow-icon') : null;
+
+            if (infoBtn && infoContent && arrowIcon) {
+                infoBtn.addEventListener('click', () => {
+                    infoContent.classList.toggle('active');
+
+                    // Change arrow direction
+                    if (infoContent.classList.contains('active')) {
+                        arrowIcon.innerHTML = '&#9650;'; // Up arrow
+                    } else {
+                        arrowIcon.innerHTML = '&#9660;'; // Down arrow
+                    }
+                });
+            }
+
+            // // Fullscreen box toggle
+            // document.querySelectorAll('.show-more-btn').forEach(button => {
+            //     button.addEventListener('click', () => {
+            //         const subSection = button.closest('.sub-section');
+            //         if (subSection) {
+            //             subSection.classList.add('fullscreen');
+            //             document.body.style.overflow = 'hidden'; // Prevent body scroll
+            //             // Also hide the header
+            //             header.classList.add('header-hidden');
+            //         }
+            //     });
+            // });
+
+            // document.querySelectorAll('.close-details-btn').forEach(button => {
+            //     button.addEventListener('click', () => {
+            //         const subSection = button.closest('.sub-section.fullscreen');
+            //         if (subSection) {
+            //             subSection.classList.remove('fullscreen');
+            //             document.body.style.overflow = ''; // Restore body scroll
+            //             // Header visibility will be handled by the scroll listener on next scroll
+            //         }
+            //     });
+            // });
+
+            // Gallery functionality
+            const gallery = document.querySelector('.gallery'); // Get the gallery container
+            const galleryContainer = document.getElementById('gallery-container');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const slides = document.querySelectorAll('.gallery-slide');
+            let currentIndex = 0;
+            const slideWidth = 100; // Each slide is 100% width
+            let autoSlideInterval;
+            const slideIntervalTime = 4000; // Time in milliseconds (e.g., 4 seconds)
+
+            function updateGallery(smooth = true) {
+                if (galleryContainer) {
+                    galleryContainer.style.transition = smooth ? 'transform 0.5s ease' : 'none';
+                    galleryContainer.style.transform = `translateX(-${currentIndex * slideWidth}%)`;
+                }
+            }
+
+            function nextSlide() {
+                currentIndex = (currentIndex < slides.length - 1) ? currentIndex + 1 : 0;
+                updateGallery();
+            }
+
+            function prevSlide() {
+                currentIndex = (currentIndex > 0) ? currentIndex - 1 : slides.length - 1;
+                updateGallery();
+            }
+
+            function startAutoSlide() {
+                // Clear any existing interval before starting a new one
+                clearInterval(autoSlideInterval);
+                autoSlideInterval = setInterval(nextSlide, slideIntervalTime);
+            }
+
+            // Initialize gallery
+            if (slides.length > 0 && galleryContainer) {
+                updateGallery(false); // Set initial position without animation
+                startAutoSlide();     // Start automatic sliding
+            }
+
+            // Button listeners
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    prevSlide();
+                    startAutoSlide(); // Reset interval timer on manual navigation
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    nextSlide();
+                    startAutoSlide(); // Reset interval timer on manual navigation
+                });
+            }
+
+            // Optional: Pause on hover
+            if (gallery) {
+                gallery.addEventListener('mouseenter', () => {
+                    clearInterval(autoSlideInterval);
+                });
+
+                gallery.addEventListener('mouseleave', () => {
+                    startAutoSlide();
+                });
+            }
+
+            // Constellation Canvas Animation
+            document.addEventListener('DOMContentLoaded', () => {
+                const canvas = document.getElementById('constellation-canvas');
+                if (!canvas) {
+                    console.error('Canvas element with ID "constellation-canvas" not found.');
+                    return;
+                }
+
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+                const particleCount = 50; // Fewer particles for a subtle effect
+                const maxVelocity = 0.3;
+                const connectionDistance = 100;
+
+                // Resize canvas to fit the window
+                function resizeCanvas() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+
+                // Particle class
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = (Math.random() - 0.5) * maxVelocity;
+                        this.vy = (Math.random() - 0.5) * maxVelocity;
+                        this.radius = Math.random() * 2 + 1;
+                    }
+
+                    draw() {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'; // Changed to black with high opacity
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+
+                    update() {
+                        this.x += this.vx;
+                        this.y += this.vy;
+
+                        // Bounce off edges
+                        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                    }
+                }
+
+                // Create particles
+                function createParticles() {
+                    particles.length = 0;
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push(new Particle());
+                    }
+                }
+
+                // Draw connections between particles
+                function drawConnections() {
+                    for (let i = 0; i < particles.length; i++) {
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const dx = particles[i].x - particles[j].x;
+                            const dy = particles[i].y - particles[j].y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+
+                            if (distance < connectionDistance) {
+                                ctx.beginPath();
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                                ctx.strokeStyle = `rgba(0, 0, 0, ${1 - distance / connectionDistance})`; // Changed to black
+                                ctx.lineWidth = 0.5;
+                                ctx.stroke();
+                                ctx.closePath();
+                            }
+                        }
+                    }
+                }
+
+                // Animate particles
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(particle => {
+                        particle.update();
+                        particle.draw();
+                    });
+
+                    drawConnections();
+                    requestAnimationFrame(animate);
+                }
+
+                // Initialize animation
+                resizeCanvas();
+                createParticles();
+                animate();
+
+                // Resize canvas on window resize
+                window.addEventListener('resize', () => {
+                    resizeCanvas();
+                    createParticles();
+                });
+            });
+
+            function initConstellationEffect(canvasId) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                // Set particle color based on section
+                const particleColor = (canvasId === 'software-particles' || canvasId === 'gallery-particles') 
+                    ? 'rgba(255, 255, 255, 0.9)' 
+                    : 'rgba(0, 0, 0, 0.9)';
+
+                // Adjust parameters based on section
+                const params = canvasId === 'hardware-particles' 
+                    ? {
+                        particleCount: 80,    // More particles for hardware
+                        connectionDistance: 250,  // Longer connections
+                        maxVelocity: 0.6,     // Faster movement
+                        minRadius: 1,         // Larger particles
+                        maxRadius: 3
+                      }
+                    : {
+                        particleCount: 60,
+                        connectionDistance: 200,
+                        maxVelocity: 0.4,
+                        minRadius: 0.5,
+                        maxRadius: 2
+                      };
+
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+
+                function resizeCanvas() {
+                    const section = canvas.closest('.page-section');
+                    if (section) {
+                        canvas.width = section.offsetWidth;
+                        canvas.height = section.offsetHeight;
+                    }
+                }
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = (Math.random() - 0.5) * params.maxVelocity;
+                        this.vy = (Math.random() - 0.5) * params.maxVelocity;
+                        this.radius = Math.random() * (params.maxRadius - params.minRadius) + params.minRadius;
+                    }
+
+                    draw() {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = particleColor;
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+
+                    update() {
+                        this.x += this.vx;
+                        this.y += this.vy;
+
+                        // Bounce off edges
+                        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                    }
+                }
+
+                function createParticles() {
+                    particles.length = 0;
+                    for (let i = 0; i < params.particleCount; i++) {
+                        particles.push(new Particle());
+                    }
+                }
+
+                function drawConnections() {
+                    for (let i = 0; i < particles.length; i++) {
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const dx = particles[i].x - particles[j].x;
+                            const dy = particles[i].y - particles[j].y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+
+                            if (distance < params.connectionDistance) {
+                                ctx.beginPath();
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                                const opacity = (1 - distance / params.connectionDistance) * 0.5; // Increased base opacity
+                                ctx.strokeStyle = particleColor.replace('0.9', opacity);
+                                ctx.lineWidth = 0.5; // Slightly thicker lines
+                                ctx.stroke();
+                                ctx.closePath();
+                            }
+                        }
+                    }
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Draw connections first (behind particles)
+                    drawConnections();
+                    
+                    // Then draw and update particles
+                    particles.forEach(particle => {
+                        particle.update();
+                        particle.draw();
+                    });
+
+                    requestAnimationFrame(animate);
+                }
+
+                // Initialize
+                resizeCanvas();
+                createParticles();
+                animate();
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    resizeCanvas();
+                    createParticles();
+                });
+            }
+
+            // Initialize the constellation effect for both sections
+            document.addEventListener('DOMContentLoaded', () => {
+                initConstellationEffect('software-particles');
+                initConstellationEffect('gallery-particles');
+                initConstellationEffect('hardware-particles');
+                initConstellationEffect('despre-particles');
+            });
+        </script>
+    </body>
+    </html>

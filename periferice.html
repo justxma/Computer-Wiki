@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dispozitive periferice - Arhitectura Sistemelor de Calcul</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <style>
+:root {
+    --bg: #000000;
+    --text: #ffffff; /* Changed from black to white */
+    --primary: #000000;
+    --secondary: #ffffff; /* Changed to white */
+    --accent: #000000;
+    --light-gray: #f0f0f0;
+    --transition: all 0.3s ease-in-out;
+}
+
+@font-face {
+    font-family: 'Neue Montreal';
+    src: url('fonts/NeueMontreal-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #000000;
+    color: white;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 0.8rem 3rem; /* Consistent padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000; /* Increased from 100 to ensure it's above all content */
+    background-color: var(--primary); /* Always black */
+    transition: transform 0.4s ease-in-out; /* Animate transform */
+    transform: translateY(0); /* Start visible */
+}
+
+header a{
+    position: relative;
+    left: 0;
+    transform: translateX(-50%);
+    transition: var(--transition);
+}
+
+header.header-hidden {
+    transform: translateY(-100%); /* Move header off-screen */
+}
+
+header.modal-open {
+    display: none;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: white; /* Change logo color to white */
+    transition: var(--transition);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    z-index: 999; /* High z-index but still below header */
+}
+
+.nav-links a {
+    color: white; /* Change link color to white */
+    text-decoration: none;
+    font-size: 1rem;
+    position: relative;
+    transition: var(--transition);
+}
+
+.nav-links a:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: white; /* Underline color white */
+    transition: var(--transition);
+}
+
+.nav-links a:hover:after {
+    width: 100%;
+}
+
+/* Hide original nav links on desktop */
+@media (min-width: 769px) { /* Apply above mobile breakpoint */
+    .nav-links {
+        display: none;
+    }
+}
+
+/* Search Bar Styles */
+.search-form {
+    display: flex;
+    align-items: center;
+}
+
+.search-form input[type="search"] {
+    padding: 0.5rem 1rem;
+    border-radius: 20px; /* Rounded corners */
+    background-color: #333; /* Dark background for input */
+    color: white;
+    font-size: 0.9rem;
+    width: 250px; /* Adjust width as needed */
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    margin-right: 0.5rem; /* Space before potential button */
+}
+
+.search-form input[type="search"]::placeholder {
+    color: var(--secondary);
+}
+
+search-form input[type="search"]:focus {
+    outline: none;
+    border-color: white;
+    background-color: #444;
+    width: 300px; /* Expand on focus */
+}
+/* Optional: Add a search button/icon if needed */
+
+/* Footer */
+footer {
+    padding: 5rem 10% 2rem 10%;
+    background-color: #000000 !important;
+    color: white;
+    position: relative;
+    z-index: 2; /* Higher than constellation */
+}
+
+footer.modal-open {
+    display: none;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.footer-col h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-col a {
+    color: rgba(255, 255, 255, 0.397);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-col a:hover {
+    color: white;
+}
+
+.footer-col img{
+    transition: var(--transition);
+    filter: brightness(0) invert(1); /* Makes the images white */
+}
+
+.footer-col img:hover{
+    box-shadow: 0 0 35px var(--bg);
+    filter: brightness(0) invert(1); /* Keep images white on hover */
+}
+
+.copyright {
+    padding-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+}
+
+/* Mobile Menu */
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    z-index: 101;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-image {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1.5rem;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--bg);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+    
+    .nav-links.active {
+        right: 0;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .hero {
+        padding: 0 1.5rem;
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+
+/* Remove unused particle effects */
+#software-particles,
+#gallery-particles,
+#despre-particles {
+    display: none;
+}
+
+/* Keep only necessary styles */
+.page-section {
+    padding: 4rem 0;
+    margin: 4rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+.sub-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 10rem auto;
+    text-align: center;
+}
+.sub-section h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: white; /* Changed to white */
+}
+/* Placeholder styles */
+.placeholder {
+    width: 100%;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+/* Hardware section specific */
+.hardware-section {
+    position: relative;
+    width: 100vw;
+    overflow: hidden;
+    padding: 0;
+    margin-top: 0;
+    background: #000;
+}
+
+#hardware-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Button styles */
+/* From Uiverse.io by TISEPSE */ 
+.btn2 {
+  position: relative;
+  display: inline-block;
+  padding: 15px 30px;
+  border: 2px solid #fefefe;
+  text-transform: uppercase;
+  color: #fefefe;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 50px;
+  transition: 0.3s;
+  margin-bottom: 3rem;
+  cursor: default;
+}
+
+.btn2::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - -2px);
+  background-color: #000000;
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+}
+
+.btn2::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 50px);
+  background-color: #000000;
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+}
+
+.btn2:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.btn2:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.btn2:hover {
+  border: 2px solid #fefefe;
+}
+
+.btn2 span {
+  position: relative;
+  z-index: 3;
+}
+
+.button {
+  text-decoration: none;
+  border: none;
+  background-color: transparent;
+  margin-top: 120px;
+}
+
+/* Add this to the existing styles section */
+.home-link {
+    position: relative;
+    right: 6%;
+    color: rgba(255, 255, 255, 0.397);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 1rem;
+    text-transform: uppercase;
+    margin: 0 0px 0 265px;
+}
+
+.home-link:hover {
+    color: white;
+}
+
+/* Add these styles to your existing CSS */
+.read-more-trigger {
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 5px;
+    transition: var(--transition);
+}
+
+.read-more-trigger:hover {
+    color: white;
+}
+
+.extra-content {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: none;
+    border-radius: 8px;
+}
+
+.extra-content.active {
+    display: block;
+}
+
+.close-extra {
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: block;
+    margin-top: 1rem;
+    text-align: right;
+    transition: var(--transition);
+}
+
+.close-extra:hover {
+    color: white;
+}
+
+/* Add these styles before the closing style tag */
+.main-box {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0px auto 50px auto;
+    background: rgb(65 65 65 / 30%);
+    border-radius: 25px;
+    padding: 0;
+    min-height: calc(100vh - 300px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.section-title {
+    color: white;
+    font-size: 1.5rem;
+    padding: 1rem;
+    margin: 0;
+    cursor: pointer;
+    border-radius: 0;
+    transition: var(--transition);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    text-align: center;
+}
+
+.section-title:first-child {
+    border-radius: 25px 25px 0 0;
+}
+
+.section-title:last-child {
+    border-radius: 0;
+}
+
+.section-title:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.section-title::after {
+    content: '+';
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+    position: absolute;
+    right: 1rem;
+}
+
+.section-title.active::after {
+    content: '-';
+}
+
+.section-content {
+    display: none;
+    padding: 1rem;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0;
+}
+
+.section-content:last-child {
+    border-radius: 0 0 25px 25px;
+    margin-bottom: 0;
+}
+
+.section-content.active {
+    display: block;
+}
+
+/* Update hero section styles */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 2rem;
+    position: relative;
+    background-color: #000000 !important;
+    margin-bottom: 0;
+    overflow: hidden;
+    text-align: center;
+    z-index: 2; /* Higher than constellation */
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay for better text visibility */
+    z-index: 1;
+}
+
+.hero video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.hero h1, .hero p, .hero .scroll-down {
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1 {
+    font-size: clamp(4rem, 8vw, 8rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: white;
+    text-align: center;
+    letter-spacing: -0.02em;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.hero h1:hover {
+    transform: scale(1.05);
+}
+
+.hero h1::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: white;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.hero h1:hover::after {
+    width: 80%;
+}
+
+.hero p {
+    font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+    max-width: 600px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+/* Update scroll down indicator */
+.scroll-down {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.scroll-down span {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+}
+
+.scroll-down:hover {
+    opacity: 0.7;
+}
+
+/* Update hardware section styles */
+.content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; /* Reduced from 8rem */
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    align-items: center;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-text {
+    background-color: #ffffff;
+    width: 140%;
+    position: relative;
+    padding: 6rem 3rem;
+    color: black;
+    position: relative;
+    z-index: 2;
+    margin-top: 0;
+    text-align: center;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    margin-left: -95rem;
+    height: 400px
+}
+
+.section-text .title {
+    font-size: 3.5rem;
+    margin-bottom: 2rem;
+    color: black;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    max-width: 1200px;
+    margin: auto;
+    line-height: 1.3;
+}
+
+.section-text p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: var(--bg);
+    text-align: center;
+    font-weight: 400;
+    max-width: 800px;
+    margin: auto;
+}
+
+/* Update images */
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+    width: 120%;
+    max-width: 1600px;
+    margin-left: -11%;
+
+}
+
+.image-placeholder.clickable {
+    width: 100%;
+    aspect-ratio: 4/3; /* Changed for larger images */
+    height: 500px; /* Fixed height for larger images */
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+}
+
+.image-placeholder.clickable img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.image-placeholder.clickable:hover img {
+    transform: scale(1.05);
+}
+
+.image-caption {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 1.3rem;
+    text-align: center;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    bottom: 0;
+    backdrop-filter: blur(5px);
+}
+
+.image-placeholder.clickable:hover .image-caption {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Responsive image adjustments */
+@media (max-width: 768px) {
+    .image-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .image-placeholder.clickable {
+        height: auto;
+    }
+}
+
+/* Update section titles */
+.functionareaProc h2,
+.naturaProcesorului h2,
+.memorieCache h2,
+.registri h2,
+.insideCPU h2,
+.clasificareProcesoare h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.functionareaProc-content,
+.naturaProcesorului-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.functionareaProc-content p,
+.naturaProcesorului-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .section-text {
+        padding: 4rem 1.5rem;
+    }
+    
+    .section-text .title {
+        font-size: 2.5rem;
+    }
+    
+    .section-text .section-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .history {
+        padding: 2rem;
+        height: auto;
+        min-height: 400px;
+    }
+    
+    .history h2 {
+        font-size: 2rem;
+    }
+    
+    .history-content {
+        width: 100%;
+    }
+}
+
+/* Update content layout */
+.section-text,
+.functionareaProc,
+.naturaProcesorului,
+.insideCPU,
+.clasificareProcesoare {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 4rem;
+    padding: 4rem;
+    width: 110%;
+    max-width: 2000px;
+    margin: 0 auto;
+    position: relative;
+    margin-left: -5rem;
+}
+
+.text-content {
+    flex: 1;
+    max-width: 600px;
+    padding-top: 150px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .section-text,
+    .functionareaProc,
+    .naturaProcesorului,
+    .insideCPU,
+    .clasificareProcesoare {
+        flex-direction: column;
+        gap: 2rem;
+        padding: 2rem;
+    }
+
+    .text-content {
+        max-width: 100%;
+        padding-top: 0;
+    }
+
+    .image-placeholder {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        max-width: 500px;
+        height: 250px;
+        margin: 2rem auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-text,
+    .functionareaProc,
+    .naturaProcesorului,
+    .insideCPU,
+    .clasificareProcesoare {
+        padding: 1.5rem;
+    }
+
+    .image-placeholder {
+        height: 200px;
+    }
+}
+
+.image-placeholder.clickable {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    width: 107%; /* Make them full width within the grid */
+    height: 450px; /* Increased from 320px */
+}
+
+.functionaliateaProcesorului h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+.functionaliateaProcesorului .functionareaProc-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.functionaliateaProcesorului .functionareaProc-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+}
+
+/* Update content section styles */
+.content-section {
+    position: relative;
+    padding: 1rem 0rem; /* Reduced from 4rem */
+    margin: 0; /* Remove margin */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4rem;
+    background: transparent;
+    border-radius: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: none;
+    overflow: visible;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.content-section.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.text-content {
+    flex: 1;
+    max-width: 50%;
+    text-align: left;
+    padding: 0;
+}
+
+.text-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: left;
+}
+
+.text-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .content-section {
+        flex-direction: column;
+        gap: 2rem;
+        padding: 2rem;
+    }
+
+    .text-content {
+        max-width: 100%;
+    }
+
+    .image-placeholder {
+        width: 100%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-section {
+        padding: 1.5rem;
+    }
+
+    .image-placeholder {
+        height: 200px;
+    }
+}
+
+/* Remove these hover effects */
+.content-section::before {
+    display: none;
+}
+
+.content-section:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.content-section:hover::before {
+    opacity: 0;
+}
+
+.content-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    position: relative;
+    display: inline-block;
+}
+
+/* Remove hover effect from title */
+.content-section h2::after {
+    display: none;
+}
+
+.content-section:hover h2::after {
+    width: 0;
+}
+
+.content-section p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+}
+
+/* Remove hover effect from paragraph */
+.content-section:hover p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Remove hover effects from image */
+.content-section:hover .content-image {
+    transform: none;
+}
+
+.content-section:hover .content-image img {
+    transform: none;
+}
+
+/* Remove animated background */
+.animated-bg {
+    display: none;
+}
+
+.content-section:hover .animated-bg {
+    opacity: 0;
+}
+
+/* Keep the read more button styles */
+.read-more-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.read-more-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.read-more-btn.hidden {
+    display: none;
+}
+
+/* Add new class for reversed layout */
+.content-section.reversed {
+    flex-direction: row-reverse;
+}
+
+/* Update responsive styles */
+@media (max-width: 1200px) {
+    .content-section.reversed {
+        flex-direction: column;
+    }
+}
+
+/* Add styles for light boxes */
+.content-section.light-box {
+    background: rgba(255, 255, 255, 0.95);
+    width: 200vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding: 4rem 10%;
+    margin: 4rem 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.content-section.light-box h2 {
+    color: #000;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    width: 100%;
+}
+
+.content-section.light-box .text-content {
+    max-width: 100%;
+    color: #000;
+    text-align: center;
+    margin-right: 4%;
+}
+
+.content-section.light-box p {
+    color: #000;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-section.light-box .image-placeholder {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .content-section.light-box {
+        padding: 3rem 5%;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-section.light-box {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* Add constellation animation styles */
+#constellation-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0; /* Lower than images */
+}
+
+/* Update main content section */
+#content {
+    position: relative;
+    z-index: 0;
+}
+
+/* Update footer to ensure it's above the constellation */
+footer {
+    padding: 5rem 10% 2rem 10%;
+    background-color: #000000 !important;
+    color: white;
+    position: relative;
+    z-index: 2; /* Higher than constellation */
+}
+
+/* Add smooth scrolling to html */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Adjust based on your header height */
+}
+
+/* Update scroll behavior for older browsers */
+@media screen and (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+.content-section.centered {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 4rem;  /* Increased padding */
+    width: 100%;
+    max-width: 1600px; /* Increased from default */
+    margin: 0 auto;
+}
+
+.text-content-centered {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    width: 95%;
+    max-width: 1200px;  /* Increased from 800px */
+    margin: 2vh auto;
+    background: #111;
+    padding: 3rem;
+    border-radius: 15px;
+    color: white;
+    max-height: 95vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: center;
+}
+
+.modal-body {
+    display: flex;
+    gap: 3rem;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.modal-text {
+    flex: 1;
+    max-width: 50%;
+}
+
+.modal-media {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.modal-media img {
+    width: 70%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+
+.close-modal {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 2rem;
+    cursor: pointer;
+    color: white;
+}
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <a href="prinPage.html">
+            <div class="logo-container">
+                <svg width="33" height="43" viewBox="0 0 18 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.0023 4.86847C14.0023 4.27515 13.7658 3.70609 13.3447 3.2863L11.7281 1.67969L2.31641 11.0521C1.84958 11.5162 1.47921 12.0673 1.22652 12.674C0.973819 13.2808 0.84375 13.9312 0.84375 14.588C0.84375 15.2448 0.973819 15.8952 1.22652 16.502C1.47921 17.1087 1.84958 17.6598 2.31641 18.1238L3.89702 19.7011C3.69238 18.727 3.73484 17.7175 4.02053 16.7639C4.30622 15.8102 4.82614 14.9425 5.53327 14.2393L13.3447 6.45065C13.7658 6.03086 14.0023 5.4618 14.0023 4.86847ZM13.3424 11.0375C13.7649 11.4609 14.0022 12.0347 14.0022 12.6329C14.0022 13.2312 13.7649 13.805 13.3424 14.2284L9.38858 18.1839C8.8241 18.7451 8.37672 19.4129 8.07241 20.1486C7.76811 20.8842 7.61295 21.673 7.61595 22.4692C7.61692 22.8845 7.65997 23.2986 7.74446 23.7053L6.18599 22.1033C5.23793 21.1533 4.70544 19.8658 4.70544 18.5235C4.70544 17.1811 5.23793 15.8936 6.18599 14.9437L11.7279 9.40254L13.3424 11.0375ZM13.3021 22.7473C13.5238 22.9594 13.7 23.2126 13.8202 23.492C13.9405 23.7714 14.0024 24.0714 14.0024 24.3745C14.0024 24.6776 13.9405 24.9776 13.8202 25.257C13.7 25.5365 13.5238 25.7896 13.3021 26.0017L11.6954 27.5671L10.0621 25.9692C9.16557 25.092 8.63499 23.9208 8.57339 22.6831C8.51179 21.4454 8.92357 20.2295 9.72873 19.2716L13.3021 22.7473Z" fill="#fff"></path>
+                </svg>
+            </div>
+        </a>
+        <!-- New Search Bar -->
+        <form class="search-form" action="#" method="get">
+            <input type="search" name="query" placeholder="Căutare...">
+            <!-- Optional: Add search button here -->
+            <!-- <button type="submit">🔍</button> -->
+        </form>
+
+        <!-- Existing Mobile Menu Toggle - might need review later -->
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+        <!-- Main Content Sections -->
+        <main id="main-content">
+            <!-- Hero Section -->
+            <section class="hero">
+                <video autoplay muted loop playsinline>
+                    <source src="perifericeVideo1.mp4" type="video/mp4">
+                </video>
+                <h1>Dispozitive periferice</h1>
+                <p>Descoperă performanța cu dispozitive periferice</p>
+                <a href="#content" class="scroll-down">
+                    <span>Scroll pentru a explora</span>
+                </a>
+            </section>
+
+            <!-- Content Section -->
+            <section id="content" class="page-section hardware-section">
+                <canvas id="hardware-particles"></canvas>
+                <div class="content-grid">
+                    <!-- Main Title Section -->
+                    <div class="section-text">
+                        <h2 class="title" >Dispozitive <br>periferice</h2>
+                        <p>Dispozitivele periferice reprezintă elemente hardware esențiale care se interconectează cu un sistem de calcul pentru a-i amplifica capacitățile operaționale. Acestea facilitează interacțiunea utilizatorului cu sistemul, permițând atât introducerea de date, cât și recepționarea rezultatelor procesate. Din punct de vedere tehnic, dispozitivele periferice pot fi clasificate în trei categorii principale: dispozitive de intrare, dispozitive de ieșire și dispozitive de stocare.</p>
+                    </div>
+
+                    <!-- Input Devices Section -->
+                    <div class="content-section centered">
+                        <div class="text-content-centered">
+                            <h2>Dispozitive de intrare</h2>
+                            <p>Dispozitivele de intrare permit utilizatorului să transmită date și comenzi către calculator.</p>
+                            <div class="image-grid">
+                                <div class="image-placeholder clickable" data-modal="keyboard">
+                                    <img src="keyboard2.jpg" alt="Tastatură">
+                                    <div class="image-caption">Tastatură</div>
+                                </div>
+                                <div class="image-placeholder clickable" data-modal="mouse">
+                                    <img src="mouseDP.jpg" alt="Mouse">
+                                    <div class="image-caption">Mouse</div>
+                                </div>
+                                <div class="image-placeholder clickable" data-modal="scanner">
+                                    <img src="microphone.jpg" alt="Microfon">
+                                    <div class="image-caption">Microfon</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Devices Section -->
+                    <div class="content-section centered">
+                        <div class="text-content-centered">
+                            <h2>Dispozitive de ieșire</h2>
+                            <p>Dispozitivele de ieșire prezintă rezultatele procesării datelor într-o formă accesibilă utilizatorului.</p>
+                            <div class="image-grid">
+                                <div class="image-placeholder clickable" data-modal="monitor">
+                                    <img src="monitorv3.png" alt="Monitor">
+                                    <div class="image-caption">Monitor</div>
+                                </div>
+                                <div class="image-placeholder clickable" data-modal="printer">
+                                    <img src="imprimanta3d1.jpg" alt="Imprimantă">
+                                    <div class="image-caption">Imprimantă 3D</div>
+                                </div>
+                                <div class="image-placeholder clickable" data-modal="speakers">
+                                    <img src="boxr.jpg" alt="Boxe">
+                                    <div class="image-caption">Boxe</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input/Output Devices Section -->
+                    <div class="content-section centered">
+                        <div class="text-content-centered">
+                            <h2>Dispozitive de intrare/ieșire</h2>
+                            <p>Aceste dispozitive combină ambele funcționalități, permițând atât introducerea cât și extragerea datelor.</p>
+                            <div class="image-grid">
+                                <div class="image-placeholder clickable" data-modal="touchscreen">
+                                    <img src="touchscreen.jpg" alt="Ecran tactil">
+                                    <div class="image-caption">Ecran tactil</div>
+                                </div>
+                                <div class="image-placeholder clickable" data-modal="multifunctional">
+                                    <img src="externHDD.jpg" alt="Multifuncțională">
+                                    <div class="image-caption">HDD extern</div>
+                                </div>
+                                <div class="image-placeholder clickable" data-modal="network">
+                                    <img src="router.jpg" alt="Placă de rețea">
+                                    <div class="image-caption">Router</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Template -->
+                    <div class="modal" id="deviceModal">
+                        <div class="modal-content">
+                            <span class="close-modal">&times;</span>
+                            <h3 class="modal-title"></h3>
+                            <div class="modal-body"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main> 
+        <!-- End Main Content -->
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; margin-top: 4rem;">Resursă educațională despre sistemele de calcul.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Link-uri rapide</h3>
+                <ul>
+                    <li><a href="prinPage.html">Hardware</a></li>
+                    <li><a href="prinPage.html">Software</a></li>
+                    <li><a href="prinPage.html">Galerie</a></li>
+                    <li><a href="prinPage.html">Despre</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Resurse</h3>
+                <ul>
+                    <li><a href="Documentatie atestat.pdf" target="_blank">Documentație</a></li>
+                    <li><a href="#">Alte proiecte ale autorului</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <ul>
+                    <li><a href="#">person@gmail.ro</a></li>
+                    <li>
+                        <a href="https://www.instagram.com" target="_blank">
+                            <img src="instaLogoRound.png" alt="Instagram" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                        <a href="#" target="_blank">
+                            <img src="facebook (4).png" alt="Facebook" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                        <a href="#" target="_blank">
+            </div>
+            
+            <div class="copyright">
+                &copy; 2025 highSchoolFinalProject. All rights reserved.
+            </div>
+        </footer>
+    
+        <script>
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            menuToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+            });
+    
+            // Close menu when clicking a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                });
+            });
+    
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    // Adjust selector for sections if needed
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        // Calculate offset dynamically based on header height
+                        const headerOffset = document.getElementById('header').offsetHeight || 80;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Auto-hide header on scroll
+            let lastScrollY = window.pageYOffset;
+            const header = document.getElementById('header');
+            const scrollThreshold = 5; // Small threshold to prevent jitter
+
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.pageYOffset;
+
+                if (currentScrollY <= 0) {
+                    // Always show header at the very top
+                    header.classList.remove('header-hidden');
+                } else if (currentScrollY > lastScrollY && currentScrollY > scrollThreshold) {
+                    // Scrolling down
+                    header.classList.add('header-hidden');
+                } else if (currentScrollY < lastScrollY) {
+                    // Scrolling up
+                    header.classList.remove('header-hidden');
+                }
+
+                lastScrollY = currentScrollY;
+            });
+
+            // Info Toggle Button
+            const infoBtn = document.getElementById('infoToggleButton');
+            const infoContent = document.getElementById('infoToggleContent');
+            const arrowIcon = infoBtn ? infoBtn.querySelector('.arrow-icon') : null;
+
+            if (infoBtn && infoContent && arrowIcon) {
+                infoBtn.addEventListener('click', () => {
+                    infoContent.classList.toggle('active');
+
+                    // Change arrow direction
+                    if (infoContent.classList.contains('active')) {
+                        arrowIcon.innerHTML = '&#9650;'; // Up arrow
+                    } else {
+                        arrowIcon.innerHTML = '&#9660;'; // Down arrow
+                    }
+                });
+            }
+
+            // Fullscreen box toggle
+            document.querySelectorAll('.show-more-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const subSection = button.closest('.sub-section');
+                    if (subSection) {
+                        subSection.classList.add('fullscreen');
+                        document.body.style.overflow = 'hidden'; // Prevent body scroll
+                        // Also hide the header
+                        header.classList.add('header-hidden');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.close-details-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const subSection = button.closest('.sub-section.fullscreen');
+                    if (subSection) {
+                        subSection.classList.remove('fullscreen');
+                        document.body.style.overflow = ''; // Restore body scroll
+                        // Header visibility will be handled by the scroll listener on next scroll
+                    }
+                });
+            });
+
+            // Constellation Animation
+            document.addEventListener('DOMContentLoaded', () => {
+                const mainContent = document.getElementById('content');
+                const canvas = document.createElement('canvas');
+                canvas.id = 'constellation-canvas';
+                mainContent.appendChild(canvas);
+                
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+                const particleCount = 200;
+                const maxVelocity = 0.2; // Reduced from 0.5
+                const connectionDistance = 200;
+                const particleSize = 2;
+
+                function resizeCanvas() {
+                    canvas.width = mainContent.offsetWidth;
+                    canvas.height = mainContent.offsetHeight;
+                }
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = (Math.random() - 0.5) * maxVelocity;
+                        this.vy = (Math.random() - 0.5) * maxVelocity;
+                        this.radius = particleSize;
+                        this.alpha = Math.random() * 0.5 + 0.5;
+                        this.pulseSpeed = Math.random() * 0.01 + 0.005; // Reduced pulse speed
+                        this.pulseDirection = 1;
+                    }
+
+                    draw() {
+                        const isLightBox = this.isInLightBox();
+                        const color = isLightBox ? '0, 0, 0' : '255, 255, 255';
+                        
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(${color}, ${this.alpha})`;
+                        ctx.fill();
+                    }
+
+                    isInLightBox() {
+                        // Get all light-box sections
+                        const lightBoxes = document.querySelectorAll('.light-box');
+                        for (const box of lightBoxes) {
+                            const rect = box.getBoundingClientRect();
+                            const mainContentRect = mainContent.getBoundingClientRect();
+                            
+                            // Adjust coordinates relative to mainContent
+                            const relativeX = this.x + mainContentRect.left;
+                            const relativeY = this.y + mainContentRect.top;
+                            
+                            if (relativeX >= rect.left && relativeX <= rect.right &&
+                                relativeY >= rect.top && relativeY <= rect.bottom) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
+                    update() {
+                        this.x += this.vx * 0.7; // Added speed multiplier
+                        this.y += this.vy * 0.7; // Added speed multiplier
+
+                        if (this.x < 0 || this.x > canvas.width) {
+                            this.vx *= -1.1;
+                            this.x = Math.max(0, Math.min(canvas.width, this.x));
+                        }
+                        if (this.y < 0 || this.y > canvas.height) {
+                            this.vy *= -1.1;
+                            this.y = Math.max(0, Math.min(canvas.height, this.y));
+                        }
+
+                        this.alpha += this.pulseSpeed * this.pulseDirection;
+                        if (this.alpha > 1) {
+                            this.alpha = 1;
+                            this.pulseDirection = -1;
+                        } else if (this.alpha < 0.3) {
+                            this.alpha = 0.3;
+                            this.pulseDirection = 1;
+                        }
+
+                        if (Math.random() < 0.01) { // Reduced randomness
+                            this.vx += (Math.random() - 0.5) * 0.1; // Reduced random movement
+                            this.vy += (Math.random() - 0.5) * 0.1;
+                        }
+                    }
+                }
+
+                function createParticles() {
+                    particles.length = 0;
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push(new Particle());
+                    }
+                }
+
+                function drawConnections() {
+                    for (let i = 0; i < particles.length; i++) {
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const dx = particles[i].x - particles[j].x;
+                            const dy = particles[i].y - particles[j].y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+
+                            if (distance < connectionDistance) {
+                                const opacity = 1 - (distance / connectionDistance);
+                                const isLightBox = particles[i].isInLightBox();
+                                const color = isLightBox ? '0, 0, 0' : '255, 255, 255';
+                                
+                                ctx.beginPath();
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                                ctx.strokeStyle = `rgba(${color}, ${opacity * 0.5})`;
+                                ctx.lineWidth = 0.8;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(particle => {
+                        particle.update();
+                        particle.draw();
+                    });
+
+                    drawConnections();
+                    requestAnimationFrame(animate);
+                }
+
+                resizeCanvas();
+                createParticles();
+                animate();
+
+                window.addEventListener('resize', () => {
+                    resizeCanvas();
+                    createParticles();
+                });
+            });
+
+            function initTextEffect(canvasId) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+                const mouse = { x: 0, y: 0 };
+                const text = "PLACA VIDEO";
+                const fontSize = Math.min(canvas.width / 10, 120);
+                const particleCount = 2000;
+                const maxDistance = 100;
+                const textColor = '#ffffff';
+
+                function resizeCanvas() {
+                    const section = canvas.closest('.hardware-section');
+                    if (section) {
+                        canvas.width = section.offsetWidth;
+                        canvas.height = section.offsetHeight;
+                    }
+                    initParticles();
+                }
+
+                function initParticles() {
+                    particles.length = 0;
+                    
+                    // Create temporary canvas for text
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    
+                    // Draw text
+                    tempCtx.font = `bold ${fontSize}px 'Neue Montreal', sans-serif`;
+                    tempCtx.fillStyle = textColor;
+                    tempCtx.textAlign = 'center';
+                    tempCtx.textBaseline = 'middle';
+                    tempCtx.fillText(text, canvas.width / 2, canvas.height / 2);
+                    
+                    // Get pixel data
+                    const imageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+                    
+                    // Create particles from text pixels
+                    for (let i = 0; i < particleCount; i++) {
+                        const x = Math.random() * canvas.width;
+                        const y = Math.random() * canvas.height;
+                        const pixelIndex = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+                        
+                        if (pixels[pixelIndex + 3] > 128) { // If pixel is not transparent
+                            particles.push({
+                                x: x,
+                                y: y,
+                                originalX: x,
+                                originalY: y,
+                                vx: 0,
+                                vy: 0,
+                                size: 1 + Math.random() * 2
+                            });
+                        }
+                    }
+                }
+
+                function draw() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(particle => {
+                        // Calculate distance from mouse
+                        const dx = mouse.x - particle.x;
+                        const dy = mouse.y - particle.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // Apply force based on mouse position
+                        if (distance < maxDistance) {
+                            const force = (maxDistance - distance) / maxDistance;
+                            particle.vx -= (dx / distance) * force * 2;
+                            particle.vy -= (dy / distance) * force * 2;
+                        }
+                        
+                        // Return to original position
+                        const dx2 = particle.originalX - particle.x;
+                        const dy2 = particle.originalY - particle.y;
+                        particle.vx += dx2 * 0.02;
+                        particle.vy += dy2 * 0.02;
+                        
+                        // Apply friction
+                        particle.vx *= 0.95;
+                        particle.vy *= 0.95;
+                        
+                        // Update position
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+                        
+                        // Draw particle
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                        ctx.fillStyle = textColor;
+                        ctx.fill();
+                    });
+
+                    requestAnimationFrame(draw);
+                }
+
+                // Mouse move handler
+                canvas.addEventListener('mousemove', (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    mouse.x = e.clientX - rect.left;
+                    mouse.y = e.clientY - rect.top;
+                });
+
+                // Mouse leave handler
+                canvas.addEventListener('mouseleave', () => {
+                    mouse.x = -1000;
+                    mouse.y = -1000;
+                });
+
+                resizeCanvas();
+                draw();
+
+                window.addEventListener('resize', resizeCanvas);
+            }
+
+            // Initialize the text effect
+            document.addEventListener('DOMContentLoaded', () => {
+                initTextEffect('hardware-particles');
+            });
+
+            // Add text toggle functionality
+            document.querySelectorAll('.read-more-trigger').forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const extraContent = this.closest('p').nextElementSibling;
+                    extraContent.classList.add('active');
+                });
+            });
+
+            document.querySelectorAll('.close-extra').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    const extraContent = this.closest('.extra-content');
+                    extraContent.classList.remove('active');
+                });
+            });
+
+            // Add this script before the closing body tag
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.addEventListener('click', () => {
+                    // Toggle active class on the clicked title
+                    title.classList.toggle('active');
+                    
+                    // Get the content div that follows this title
+                    const content = title.nextElementSibling;
+                    
+                    // Toggle active class on the content
+                    content.classList.toggle('active');
+                    
+                    // Close other sections
+                    document.querySelectorAll('.section-title').forEach(otherTitle => {
+                        if (otherTitle !== title) {
+                            otherTitle.classList.remove('active');
+                            otherTitle.nextElementSibling.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // Add box expansion functionality
+            document.querySelectorAll('.content-box').forEach(box => {
+                box.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('close-box')) {
+                        this.classList.remove('expanded');
+                        return;
+                    }
+                    
+                    // Close all other boxes
+                    document.querySelectorAll('.content-box').forEach(otherBox => {
+                        if (otherBox !== this) {
+                            otherBox.classList.remove('expanded');
+                        }
+                    });
+                    
+                    // Toggle current box
+                    this.classList.toggle('expanded');
+                });
+            });
+
+            // Add this to your existing script section
+            document.addEventListener('DOMContentLoaded', () => {
+                // Add click event listeners to all expand triggers
+                document.querySelectorAll('.expand-trigger').forEach(trigger => {
+                    trigger.addEventListener('click', () => {
+                        // Toggle active class on the trigger
+                        trigger.classList.toggle('active');
+                        
+                        // Update the text based on state
+                        if (trigger.classList.contains('active')) {
+                            trigger.textContent = 'Inchide informatiile suplimentare';
+                        } else {
+                            trigger.textContent = 'Afiseaza mai multe informatii';
+                        }
+                        
+                        // Get the paragraph group
+                        const paragraphGroup = trigger.closest('.paragraph-group');
+                        
+                        // Toggle expanded class on the paragraph group
+                        paragraphGroup.classList.toggle('expanded');
+                    });
+                });
+            });
+
+            // Remove the image expansion functionality
+            document.addEventListener('DOMContentLoaded', () => {
+                // Create Intersection Observer
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('fade-in');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+
+                // Observe all image placeholders
+                document.querySelectorAll('.image-placeholder').forEach(placeholder => {
+                    observer.observe(placeholder);
+                });
+            });
+
+            // Add smooth scrolling with fallback for older browsers
+            document.addEventListener('DOMContentLoaded', () => {
+                // Smooth scroll for all anchor links
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        
+                        if (targetElement) {
+                            const headerOffset = document.getElementById('header').offsetHeight;
+                            const elementPosition = targetElement.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+
+                // Smooth scroll for programmatic scrolling
+                const smoothScrollTo = (element) => {
+                    const headerOffset = document.getElementById('header').offsetHeight;
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                };
+
+                // Add smooth scroll to scroll-down button
+                const scrollDownButton = document.querySelector('.scroll-down');
+                if (scrollDownButton) {
+                    scrollDownButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const contentSection = document.getElementById('content');
+                        if (contentSection) {
+                            smoothScrollTo(contentSection);
+                        }
+                    });
+                }
+            });
+
+            // Modal functionality
+            const modal = document.getElementById('deviceModal');
+            const modalTitle = modal.querySelector('.modal-title');
+            const modalBody = modal.querySelector('.modal-body');
+            const closeModal = modal.querySelector('.close-modal');
+
+            const deviceContent = {
+                keyboard: {
+                    title: "Tastatură",
+                    content: `
+                        <div class="modal-text">
+                            <p>O tastatură este un dispozitiv de intrare esențial pentru computere, permițând introducerea datelor și interacțiunea cu sistemul. Tehnic, tastatura constă dintr-o matrice de comutatoare, fiecare corespunzând unei taste, conectate la un microcontroler care transmite semnalele către computer prin USB sau Bluetooth.
+<br>
+Există diverse tehnologii de comutare, cum ar fi comutatoarele mecanice, preferate pentru feedback-ul tactil, și cele cu membrană, mai silențioase și economice. Tastaturile pot fi cu fir sau fără fir, acestea din urmă folosind Bluetooth sau RF pentru conectivitate.
+<br>
+Layout-ul tastelor variază în funcție de limbă și regiune, cele mai comune fiind QWERTY, AZERTY și QWERTZ. Tastaturile moderne includ și taste speciale pentru funcții multimedia și scurtături.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="keyboard3.jpg" alt="Tastatură gaming" />
+                        </div>
+                    `
+                },
+                mouse: {
+                    title: "Mouse",
+                    content: `
+                        <div class="modal-text">
+                            <p>Un mouse reprezintă un dispozitiv de intrare fundamental pentru interacțiunea cu sistemele de calcul, convertind mișcările manuale ale utilizatorului în semnale electrice. Funcționarea sa se bazează pe senzori optici sau laser care detectează mișcarea relativă la o suprafață. În interior, un procesor dedicat interpretează datele de la senzor și le transmite computerului prin intermediul unei conexiuni USB sau wireless. Mouse-urile moderne includ butoane programabile și roți de derulare, sporind eficiența în navigarea și executarea comenzilor. Tehnologia wireless utilizează frecvențe radio sau Bluetooth pentru a asigura libertatea de mișcare. Precizia și sensibilitatea sunt determinate de DPI (dots per inch), un parametru ajustabil în funcție de necesități. Ergonomia designului este crucială pentru confortul utilizatorului, prevenind oboseala în timpul utilizării prelungite. În aplicații profesionale, mouse-urile specializate oferă funcționalități avansate, cum ar fi butoane suplimentare pentru comenzi rapide sau trackball-uri pentru precizie sporită.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="mouse2.jpg" alt="Mouse gaming" />
+                        </div>
+                    `
+                },
+                scanner: {
+                    title: "Microfon",
+                    content: `
+                        <div class="modal-text">
+                            <p>Un microfon este un dispozitiv care convertește undele sonore în semnale electrice. Există trei tipuri principale: dinamice, cu condensator și cu bandă. Microfoanele dinamice folosesc o membrană și o bobină într-un câmp magnetic pentru a genera curent electric prin inducție. Sunt robuste și potrivite pentru utilizare pe scenă. Microfoanele cu condensator au o membrană și o placă care formează un condensator, necesită alimentare phantom și sunt folosite în studiouri pentru sensibilitatea lor ridicată. Microfoanele cu bandă folosesc o bandă metalică într-un câmp magnetic, oferind un sunet natural și fiind preferate în înregistrări de calitate.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="microphone2.jpg" alt="Microfon" />
+                        </div>
+                    `
+                },
+                monitor: {
+                    title: "Monitor",
+                    content: `
+                        <div class="modal-text">
+                            <p>Un monitor este un dispozitiv de ieșire care afișează informații sub formă de imagini, text sau video, generată de un computer sau alt dispozitiv electronic. Monitoarele moderne utilizează tehnologii precum LCD (Liquid Crystal Display) sau OLED (Organic Light-Emitting Diode) pentru a produce imagini de înaltă calitate. Rezoluția, care se referă la numărul de pixeli pe care îl poate afișa un monitor, este un factor crucial în determinarea clarității imaginii. De exemplu, o rezoluție Full HD este de 1920x1080 pixeli, în timp ce rezoluțiile 4K oferă 3840x2160 pixeli, asigurând detalii mai fine și o experiență vizuală superioară.
+<br>
+                            Rata de reîmprospătare, măsurată în hertz (Hz), indică de câte ori imaginea este reîmprospătată pe secundă, influențând fluiditatea mișcării pe ecran. Monitoarele cu rate de reîmprospătare ridicate, cum ar fi 144Hz sau 240Hz, sunt preferate de jocuri și utilizatori profesioniști. Timpul de răspuns, care măsoară cât de repede un pixel poate schimba starea, este important pentru reducerea efectului de ghosting în imagini rapide. Conectivitatea este asigurată prin porturi precum HDMI, DisplayPort și USB-C, care permit transferul de date și semnale video de înaltă calitate. Monitoarele moderne pot include, de asemenea, caracteristici suplimentare precum ajustarea înălțimii, pivotarea și tehnologii de reducere a oboselii ochilor, cum ar fi filtrele de lumină albastră.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="monitor4.jpg" alt="Monitor" />
+                        </div>
+                    `
+                },
+                printer: {
+                    title: "Imprimantă 3D",
+                    content: `
+                        <div class="modal-text">
+                            <p>Imprimanta 3D este un dispozitiv tehnologic avansat care utilizează diverse procese aditive pentru a crea obiecte tridimensionale din fișiere digitale. Principiul de funcționare se bazează pe depunerea succesivă de straturi de material, cum ar fi plasticul, metalul sau rășina, conform unui model digital predefinit. Tehnologia cea mai comună este modelarea prin depunere topită (FDM), unde un filament de material este topit și extrudat printr-o duză pentru a construi obiectul strat cu strat.
+<br>
+Precizia și complexitatea obiectelor realizate depind de rezoluția imprimantei și de calitatea materialelor utilizate. Imprimantele 3D moderne pot atinge rezoluții de până la câteva microni, permițând crearea de piese cu detalii fine și suprafețe netede. În plus, tehnologiile avansate, cum ar fi stereolitografia (SLA) și sinterizarea cu laser (SLS), permit utilizarea unui spectru larg de materiale, inclusiv materiale compozite și ceramice.
+<br>
+Aplicațiile imprimării 3D sunt vaste și includ prototipare rapidă, producție personalizată, medicină, aerospatial și multe altele. Această tehnologie revoluționează modul în care sunt concepute și fabricate produsele, oferind flexibilitate și eficiență în procesul de producție.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="imprimanta3d2.jpg" alt="Imprimantă 3D" />
+                        </div>
+                    `
+                },
+                speakers: {
+                    title: "Boxe",
+                    content: `
+                        <div class="modal-text">
+                            <p>Boxele sunt dispozitive de ieșire audio esențiale, conectabile la diverse surse precum calculatoare, CD-playere și telefoane mobile. Acestea pot fi active, cu amplificator integrat, sau pasive, necesitând un amplificator extern. Sunt disponibile în configurații variate, cum ar fi 2.0, 2.1, 4.1, 5.1 și 7.1, indicând numărul de canale și subwoofere. Modelele 2.1 sunt ideale pentru sunet stereo, în timp ce 5.1 și 7.1 sunt preferate pentru home cinema. Dimensiunile variază de la portabile, cu baterii și Bluetooth, la sisteme mari pentru utilizare fixă. Tehnologia modernă a adus îmbunătățiri precum asistenți vocali și control prin aplicații. Alegerea boxelor depinde de preferințe, buget și utilizare, oferind soluții adaptate fiecărei nevoi.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="speakers.jpg" alt="Boxe" />
+                        </div>
+                    `
+                },
+                touchscreen: {
+                    title: "Ecran tactil",
+                    content: `
+                        <div class="modal-text">
+                            <p>Ecranele tactile sau touchscreen-urile sunt dispozitive versatile care funcționează atât ca dispozitive de intrare, cât și de ieșire, integrând astfel interacțiunea utilizatorului cu afișarea informațiilor. Ca dispozitive de intrare, ele permit utilizatorilor să interacționeze direct cu un ecran prin atingere, eliminând necesitatea tastaturii și a mouse-ului în multe aplicații. În același timp, ele servesc și ca dispozitive de ieșire, afișând informații vizuale, ceea ce le face esențiale în dispozitive precum telefoanele mobile, tabletele, chioșcurile interactive și sistemele de navigație.
+
+                            Există mai multe tehnologii touchscreen, fiecare cu propriile caracteristici tehnice. Ecranele rezistive sunt alcătuite din două straturi conductoare separate de un spațiu mic; atunci când ecranul este atins, cele două straturi intră în contact, generând un semnal electric care este interpretat ca o comandă. Ecranele capacitive folosesc un strat conductor care stochează o sarcină electrică; atingerea ecranului modifică câmpul electrostatic, permițând dispozitivului să detecteze poziția atingerii. Tehnologia infraroșie utilizează o rețea de LED-uri și fotodetectoare pentru a crea o grilă de lumină invizibilă; atingerea ecranului întrerupe fasciculele de lumină, determinând poziția atingerii. Ecranele cu unde acustice de suprafață folosesc unde sonore care trec peste suprafața ecranului; atingerea ecranului absoarbe o parte din undă, permițând dispozitivului să determine locația.
+
+                            Fiecare tehnologie are avantaje și dezavantaje în ceea ce privește durabilitatea, claritatea, sensibilitatea și costul. De exemplu, ecranele capacitive sunt mai durabile și permit multi-touch, dar sunt mai scumpe, în timp ce ecranele rezistive sunt mai ieftine, dar nu suportă multi-touch. Prin combinarea funcțiilor de intrare și ieșire, touchscreen-urile facilitează o interfață intuitivă și eficientă între utilizatori și dispozitivele electronice, îmbunătățind experiența de utilizare în diverse aplicații.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="touchscreen2.jpg" alt="Ecran tactil" />
+                        </div>
+                    `
+                },
+                multifunctional: {
+                    title: "HDD extern",
+                    content: `
+                        <div class="modal-text">
+                            <p>Un HDD extern, sau hard disk extern, este un dispozitiv de stocare care utilizează tehnologia magnetică pentru a păstra datele. Aceste dispozitive sunt conectate la un computer prin intermediul unor interfețe precum USB, Thunderbolt sau eSATA, oferind astfel o soluție portabilă și convenabilă pentru extinderea capacității de stocare. HDD-urile externe sunt alcătuite din una sau mai multe plăci magnetice (platere) care se rotesc la viteze mari, în timp ce un cap de citire/scriere accesează datele. Acestea sunt cunoscute pentru capacitatea lor mare de stocare și costul relativ scăzut pe gigabyte, comparativ cu alte tehnologii de stocare precum SSD-urile. Cu toate acestea, datorită componentelor mobile, HDD-urile sunt mai susceptibile la deteriorare în cazul șocurilor fizice și au viteze de transfer mai lente. Ele sunt ideale pentru backup-uri, arhivarea datelor și stocarea fișierelor mari care nu necesită acces rapid.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="hddextern2.jpg" alt="HDD extern" />
+                        </div>
+                    `
+                },
+                network: {
+                    title: "Router",
+                    content: `
+                        <div class="modal-text">
+                            <p>Un router este un dispozitiv de rețea esențial care operează la nivelul stratului de rețea al modelului OSI, având rolul principal de a direcționa traficul de date între diferite rețele. Acesta utilizează tabele de rutare și protocole de rutare, cum ar fi OSPF (Open Shortest Path First) sau BGP (Border Gateway Protocol), pentru a determina cea mai eficientă cale pentru transmiterea pachetelor de date. Routerele sunt capabile să conecteze rețele cu tehnologii diferite, cum ar fi Ethernet, Wi-Fi sau conexiuni WAN, facilitând astfel comunicarea între dispozitivele conectate la rețele distincte.
+<br>
+Un router modern include, de obicei, funcții avansate de securitate, cum ar fi firewall-uri integrate și suport pentru VPN (Virtual Private Network), care asigură protecția datelor transmise. De asemenea, routerele pot gestiona calitatea serviciului (QoS), priorizând anumite tipuri de trafic, cum ar fi cel pentru streaming video sau jocuri online, pentru a optimiza performanța rețelei. În plus, acestea pot oferi funcționalități de gestionare a lățimii de bandă și monitorizare a traficului, permițând administratorilor de rețea să optimizeze utilizarea resurselor.
+<br>
+Routerele sunt esențiale în infrastructura internetului, asigurând conectivitatea între rețelele locale și globale, și sunt utilizate atât în mediile casnice, cât și în cele de întreprindere. Ele pot fi configurate pentru a gestiona multiple subrețele și pentru a asigura redundanță, sporind astfel fiabilitatea și disponibilitatea rețelei.</p>
+                        </div>
+                        <div class="modal-media">
+                            <img src="router2.jpg" alt="Router" />
+                        </div>
+                    `
+                }
+            };
+
+            document.querySelectorAll('.image-placeholder.clickable').forEach(placeholder => {
+                placeholder.addEventListener('click', () => {
+                    const deviceType = placeholder.dataset.modal;
+                    const content = deviceContent[deviceType];
+                    
+                    if (content) {
+                        modalTitle.textContent = content.title;
+                        modalBody.innerHTML = content.content;
+                        modal.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                        document.querySelector('header').classList.add('modal-open');
+                        document.querySelector('footer').classList.add('modal-open');
+                    }
+                });
+            });
+
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+                document.querySelector('header').classList.remove('modal-open');
+                document.querySelector('footer').classList.remove('modal-open');
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    document.querySelector('header').classList.remove('modal-open');
+                    document.querySelector('footer').classList.remove('modal-open');
+                }
+            });
+
+            // Add fade-in animation for content sections
+            document.addEventListener('DOMContentLoaded', () => {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('fade-in');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.2,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+
+                // Observe all content sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    observer.observe(section);
+                });
+            });
+        </script>
+    </body>
+    </html>

@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placa Video - Arhitectura unui sistem de calcul</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <style>
+:root {
+    --bg: #000000;
+    --text: #ffffff; /* Changed from black to white */
+    --primary: #000000;
+    --secondary: #ffffff; /* Changed to white */
+    --accent: #000000;
+    --light-gray: #f0f0f0;
+    --transition: all 0.3s ease-in-out;
+}
+
+@font-face {
+    font-family: 'Neue Montreal';
+    src: url('fonts/NeueMontreal-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #000000;
+    color: white;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 0.8rem 3rem; /* Consistent padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000; /* Increased from 100 to ensure it's above all content */
+    background-color: var(--primary); /* Always black */
+    transition: transform 0.4s ease-in-out; /* Animate transform */
+    transform: translateY(0); /* Start visible */
+}
+
+header a{
+    position: relative;
+    left: 0;
+    transform: translateX(-50%);
+    transition: var(--transition);
+}
+
+header.header-hidden {
+    transform: translateY(-100%); /* Move header off-screen */
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: white; /* Change logo color to white */
+    transition: var(--transition);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    z-index: 999; /* High z-index but still below header */
+}
+
+.nav-links a {
+    color: white; /* Change link color to white */
+    text-decoration: none;
+    font-size: 1rem;
+    position: relative;
+    transition: var(--transition);
+}
+
+.nav-links a:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: white; /* Underline color white */
+    transition: var(--transition);
+}
+
+.nav-links a:hover:after {
+    width: 100%;
+}
+
+/* Hide original nav links on desktop */
+@media (min-width: 769px) { /* Apply above mobile breakpoint */
+    .nav-links {
+        display: none;
+    }
+}
+
+/* Search Bar Styles */
+.search-form {
+    display: flex;
+    align-items: center;
+}
+
+.search-form input[type="search"] {
+    padding: 0.5rem 1rem;
+    border-radius: 20px; /* Rounded corners */
+    background-color: #333; /* Dark background for input */
+    color: white;
+    font-size: 0.9rem;
+    width: 250px; /* Adjust width as needed */
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    margin-right: 0.5rem; /* Space before potential button */
+}
+
+.search-form input[type="search"]::placeholder {
+    color: var(--secondary);
+}
+
+.search-form input[type="search"]:focus {
+    outline: none;
+    border-color: white;
+    background-color: #444;
+    width: 300px; /* Expand on focus */
+}
+/* Optional: Add a search button/icon if needed */
+
+/* Footer */
+footer {
+    padding: 5rem 10% 2rem 10%;
+    background-color: #000000 !important;
+    color: white;
+    position: relative;
+    z-index: 2; /* Higher than constellation */
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.footer-col h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-col a {
+    color: rgba(255, 255, 255, 0.397);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-col a:hover {
+    color: white;
+}
+
+.footer-col img{
+    transition: var(--transition);
+    filter: brightness(0) invert(1); /* Makes the images white */
+}
+
+.footer-col img:hover{
+    box-shadow: 0 0 35px var(--bg);
+    filter: brightness(0) invert(1); /* Keep images white on hover */
+}
+
+.copyright {
+    padding-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+}
+
+/* Mobile Menu */
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    z-index: 101;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-image {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1.5rem;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--bg);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+    
+    .nav-links.active {
+        right: 0;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .hero {
+        padding: 0 1.5rem;
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+
+/* Remove unused particle effects */
+#software-particles,
+#gallery-particles,
+#despre-particles {
+    display: none;
+}
+
+/* Keep only necessary styles */
+.page-section {
+    padding: 4rem 0;
+    margin: 4rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+.sub-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 10rem auto;
+    text-align: center;
+}
+.sub-section h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: white; /* Changed to white */
+}
+/* Placeholder styles */
+.placeholder {
+    width: 100%;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+/* Hardware section specific */
+.hardware-section {
+    position: relative;
+    width: 100vw;
+    overflow: hidden;
+    padding: 0;
+    margin-top: 0;
+    background: #000;
+}
+
+#hardware-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Button styles */
+/* From Uiverse.io by TISEPSE */ 
+.btn2 {
+  position: relative;
+  display: inline-block;
+  padding: 15px 30px;
+  border: 2px solid #fefefe;
+  text-transform: uppercase;
+  color: #fefefe;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 50px;
+  transition: 0.3s;
+  margin-bottom: 3rem;
+  cursor: default;
+}
+
+.btn2::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - -2px);
+  background-color: #000000;
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+}
+
+.btn2::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 50px);
+  background-color: #000000;
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+}
+
+.btn2:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.btn2:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.btn2:hover {
+  border: 2px solid #fefefe;
+}
+
+.btn2 span {
+  position: relative;
+  z-index: 3;
+}
+
+.button {
+  text-decoration: none;
+  border: none;
+  background-color: transparent;
+  margin-top: 120px;
+}
+
+/* Add this to the existing styles section */
+.home-link {
+    position: relative;
+    right: 6%;
+    color: rgba(255, 255, 255, 0.397);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 1rem;
+    text-transform: uppercase;
+    margin: 0 0px 0 265px;
+}
+
+.home-link:hover {
+    color: white;
+}
+
+/* Add these styles to your existing CSS */
+.read-more-trigger {
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 5px;
+    transition: var(--transition);
+}
+
+.read-more-trigger:hover {
+    color: white;
+}
+
+.extra-content {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: none;
+    border-radius: 8px;
+}
+
+.extra-content.active {
+    display: block;
+}
+
+.close-extra {
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: block;
+    margin-top: 1rem;
+    text-align: right;
+    transition: var(--transition);
+}
+
+.close-extra:hover {
+    color: white;
+}
+
+/* Add these styles before the closing style tag */
+.main-box {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0px auto 50px auto;
+    background: rgb(65 65 65 / 30%);
+    border-radius: 25px;
+    padding: 0;
+    min-height: calc(100vh - 300px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.section-title {
+    color: white;
+    font-size: 1.5rem;
+    padding: 1rem;
+    margin: 0;
+    cursor: pointer;
+    border-radius: 0;
+    transition: var(--transition);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    text-align: center;
+}
+
+.section-title:first-child {
+    border-radius: 25px 25px 0 0;
+}
+
+.section-title:last-child {
+    border-radius: 0;
+}
+
+.section-title:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.section-title::after {
+    content: '+';
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+    position: absolute;
+    right: 1rem;
+}
+
+.section-title.active::after {
+    content: '-';
+}
+
+.section-content {
+    display: none;
+    padding: 1rem;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0;
+}
+
+.section-content:last-child {
+    border-radius: 0 0 25px 25px;
+    margin-bottom: 0;
+}
+
+.section-content.active {
+    display: block;
+}
+
+/* Update hero section styles */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 2rem;
+    position: relative;
+    background-color: #000000 !important;
+    margin-bottom: 0;
+    overflow: hidden;
+    text-align: center;
+    z-index: 2; /* Higher than constellation */
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay for better text visibility */
+    z-index: 1;
+}
+
+.hero video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.hero h1, .hero p, .hero .scroll-down {
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1 {
+    font-size: clamp(4rem, 8vw, 8rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: white;
+    text-align: center;
+    letter-spacing: -0.02em;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.hero h1:hover {
+    transform: scale(1.05);
+}
+
+.hero h1::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: white;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.hero h1:hover::after {
+    width: 80%;
+}
+
+.hero p {
+    font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+    max-width: 600px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+/* Update scroll down indicator */
+.scroll-down {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.scroll-down span {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+}
+
+.scroll-down:hover {
+    opacity: 0.7;
+}
+
+/* Update hardware section styles */
+.content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8rem;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    align-items: center;
+    max-width: 1400px;
+}
+
+.section-text {
+    background: transparent;
+    border-radius: 0;
+    padding: 6rem 3rem;
+    color: white;
+    max-width: 1200px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    margin-top: 0;
+    text-align: center;
+}
+
+.section-text .title {
+    font-size: 3.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.section-text .section-subtitle {
+    font-size: 1.8rem;
+    margin: 2rem 0 1rem 0;
+    color: white;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: -0.01em;
+}
+
+.section-text p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    font-weight: 400;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.expand-trigger {
+    display: inline-block;
+    margin-left: 0.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: color 0.3s ease;
+    font-size: 1rem;
+    font-weight: 300;
+}
+
+.expand-trigger:hover {
+    color: white;
+}
+
+.expand-trigger.active {
+    transform: none;
+}
+
+.expanded-content {
+    display: none;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.expanded-content.active {
+    display: block;
+}
+
+.paragraph-group p:not(:first-child) {
+    display: none;
+    margin-top: 0;
+}
+
+.paragraph-group.expanded p:not(:first-child) {
+    display: block;
+    margin-top: 0;
+}
+
+.content-box {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0);
+}
+
+.content-box:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.content-box.expanded {
+    grid-column: 1 / -1;
+    grid-row: span 2;
+    z-index: 100;
+    background: rgba(0, 0, 0, 44%);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(25px);
+    transform: translateZ(0);
+    isolation: isolate;
+}
+
+.content-box h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: white;
+    text-align: center;
+}
+
+.content-box p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.content-box .box-content {
+    display: none;
+}
+
+.content-box.expanded .box-content {
+    display: block;
+    margin-top: 2rem;
+}
+
+.close-box {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-box.expanded .close-box {
+    opacity: 1;
+}
+
+.history {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 4rem;
+    border-radius: 0;
+    color: white;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Slower, smoother transition */
+}
+
+.history:hover {
+    background-color: white;
+    color: black;
+}
+
+.history h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: inherit;
+    text-align: center;
+    font-weight: 600;
+    transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Matching transition */
+}
+
+.history-content {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.history p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: inherit;
+    margin-bottom: 0;
+    transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Matching transition */
+}
+
+/* Update images */
+.content-grid img {
+    width: 100%;
+    max-width: 600px; /* Reduced from 1200px */
+    height: auto;
+    margin: 2rem auto; /* Changed to auto for horizontal centering */
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+    display: block; /* Added to ensure proper centering */
+}
+
+.content-grid img:hover {
+    transform: scale(1.02);
+}
+
+/* Add specific styles for different image types */
+.content-grid img[alt="diagramaProcesor"] {
+    max-width: 500px; /* Even smaller for diagrams */
+}
+
+.content-grid img[alt="procesorImage"] {
+    max-width: 400px; /* Smaller for processor images */
+}
+
+.content-grid img[alt="insideCPU"] {
+    max-width: 450px; /* Specific size for inside CPU images */
+}
+
+/* Responsive image adjustments */
+@media (max-width: 768px) {
+    .content-grid img {
+        max-width: 90%; /* Slightly smaller on mobile */
+    }
+    
+    .content-grid img[alt="diagramaProcesor"],
+    .content-grid img[alt="procesorImage"],
+    .content-grid img[alt="insideCPU"] {
+        max-width: 85%;
+    }
+}
+
+/* Update section titles */
+.functionareaProc h2,
+.naturaProcesorului h2,
+.memorieCache h2,
+.registri h2,
+.insideCPU h2,
+.clasificareProcesoare h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.functionareaProc-content,
+.naturaProcesorului-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.functionareaProc-content p,
+.naturaProcesorului-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .section-text {
+        padding: 4rem 1.5rem;
+    }
+    
+    .section-text .title {
+        font-size: 2.5rem;
+    }
+    
+    .section-text .section-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .history {
+        padding: 2rem;
+        height: auto;
+        min-height: 400px;
+    }
+    
+    .history h2 {
+        font-size: 2rem;
+    }
+    
+    .history-content {
+        width: 100%;
+    }
+}
+
+/* Update image styles */
+.image-placeholder {
+    width: 45%;
+    height: 300px;
+    margin: 0;
+    background: #000000; /* Solid black background */
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    z-index: 2; /* Higher than constellation */
+}
+
+.image-placeholder.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.image-placeholder img,
+.image-placeholder video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: var(--transition);
+    filter: none;
+    -webkit-filter: none;
+    z-index: 2; /* Higher than constellation */
+    position: relative; /* Ensure z-index works */
+    background: #000000; /* Solid black background */
+}
+
+.image-placeholder:hover img,
+.image-placeholder:hover video {
+    transform: scale(1.02);
+}
+
+/* Update content layout */
+.section-text,
+.functionareaProc,
+.naturaProcesorului,
+.insideCPU,
+.clasificareProcesoare {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 4rem;
+    padding: 4rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.text-content {
+    flex: 1;
+    max-width: 600px;
+    padding-top: 150px;
+}
+
+.image-placeholder {
+    width: 45%;
+    height: 300px;
+    margin: 0;
+    background: #000000; /* Solid black background */
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    z-index: 2; /* Higher than constellation */
+}
+
+.image-placeholder.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.image-placeholder img,
+.image-placeholder video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: var(--transition);
+    filter: none;
+    -webkit-filter: none;
+    z-index: 2; /* Higher than constellation */
+    position: relative; /* Ensure z-index works */
+    background: #000000; /* Solid black background */
+}
+
+.image-placeholder:hover img,
+.image-placeholder:hover video {
+    transform: scale(1.02);
+}
+
+/* Update text alignment */
+.section-text .title,
+.functionareaProc h2,
+.naturaProcesorului h2,
+.insideCPU h2,
+.clasificareProcesoare h2 {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.section-text p,
+.functionareaProc-content p,
+.naturaProcesorului-content p {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .section-text,
+    .functionareaProc,
+    .naturaProcesorului,
+    .insideCPU,
+    .clasificareProcesoare {
+        flex-direction: column;
+        gap: 2rem;
+        padding: 2rem;
+    }
+
+    .text-content {
+        max-width: 100%;
+        padding-top: 0;
+    }
+
+    .image-placeholder {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        max-width: 500px;
+        height: 250px;
+        margin: 2rem auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-text,
+    .functionareaProc,
+    .naturaProcesorului,
+    .insideCPU,
+    .clasificareProcesoare {
+        padding: 1.5rem;
+    }
+
+    .image-placeholder {
+        height: 200px;
+    }
+}
+
+.functionaliateaProcesorului h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.functionaliateaProcesorului .functionareaProc-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.functionaliateaProcesorului .functionareaProc-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+}
+
+/* Update content section styles */
+.content-section {
+    position: relative;
+    padding: 4rem;
+    margin: 2rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4rem;
+    background: none;
+    border-radius: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: none;
+    overflow: visible;
+}
+
+.text-content {
+    flex: 1;
+    max-width: 50%;
+    text-align: left;
+    padding: 0;
+}
+
+.text-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: left;
+}
+
+.text-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.image-placeholder {
+    width: 45%;
+    height: 300px;
+    margin: 0;
+    background: #000000; /* Solid black background */
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    z-index: 2; /* Higher than constellation */
+}
+
+.image-placeholder img,
+.image-placeholder video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: var(--transition);
+    filter: none;
+    -webkit-filter: none;
+    z-index: 2; /* Higher than constellation */
+    position: relative; /* Ensure z-index works */
+    background: #000000; /* Solid black background */
+}
+
+.image-placeholder:hover img,
+.image-placeholder:hover video {
+    opacity: 0.9;
+    filter: none;
+    -webkit-filter: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .content-section {
+        flex-direction: column;
+        gap: 2rem;
+        padding: 2rem;
+    }
+
+    .text-content {
+        max-width: 100%;
+    }
+
+    .image-placeholder {
+        width: 100%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-section {
+        padding: 1.5rem;
+    }
+
+    .image-placeholder {
+        height: 200px;
+    }
+}
+
+/* Remove these hover effects */
+.content-section::before {
+    display: none;
+}
+
+.content-section:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.content-section:hover::before {
+    opacity: 0;
+}
+
+.content-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    position: relative;
+    display: inline-block;
+}
+
+/* Remove hover effect from title */
+.content-section h2::after {
+    display: none;
+}
+
+.content-section:hover h2::after {
+    width: 0;
+}
+
+.content-section p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+}
+
+/* Remove hover effect from paragraph */
+.content-section:hover p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Remove hover effects from image */
+.content-section:hover .content-image {
+    transform: none;
+}
+
+.content-section:hover .content-image img {
+    transform: none;
+}
+
+/* Remove animated background */
+.animated-bg {
+    display: none;
+}
+
+.content-section:hover .animated-bg {
+    opacity: 0;
+}
+
+/* Keep the read more button styles */
+.read-more-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.read-more-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.read-more-btn.hidden {
+    display: none;
+}
+
+/* Add new class for reversed layout */
+.content-section.reversed {
+    flex-direction: row-reverse;
+}
+
+/* Update responsive styles */
+@media (max-width: 1200px) {
+    .content-section.reversed {
+        flex-direction: column;
+    }
+}
+
+/* Add styles for light boxes */
+.content-section.light-box {
+    background: rgba(255, 255, 255, 0.95);
+    width: 200vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding: 4rem 10%;
+    margin: 4rem 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.content-section.light-box h2 {
+    color: #000;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    width: 100%;
+}
+
+.content-section.light-box .text-content {
+    max-width: 100%;
+    color: #000;
+    text-align: center;
+    margin-right: 4%;
+}
+
+.content-section.light-box p {
+    color: #000;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-section.light-box .image-placeholder {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .content-section.light-box {
+        padding: 3rem 5%;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-section.light-box {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* Add constellation animation styles */
+#constellation-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1; /* Lower than images */
+}
+
+/* Update main content section */
+#content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Update footer to ensure it's above the constellation */
+footer {
+    padding: 5rem 10% 2rem 10%;
+    background-color: #000000 !important;
+    color: white;
+    position: relative;
+    z-index: 2; /* Higher than constellation */
+}
+
+/* Add smooth scrolling to html */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Adjust based on your header height */
+}
+
+/* Update scroll behavior for older browsers */
+@media screen and (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <a href="prinPage.html">
+            <div class="logo-container">
+                <svg width="33" height="43" viewBox="0 0 18 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.0023 4.86847C14.0023 4.27515 13.7658 3.70609 13.3447 3.2863L11.7281 1.67969L2.31641 11.0521C1.84958 11.5162 1.47921 12.0673 1.22652 12.674C0.973819 13.2808 0.84375 13.9312 0.84375 14.588C0.84375 15.2448 0.973819 15.8952 1.22652 16.502C1.47921 17.1087 1.84958 17.6598 2.31641 18.1238L3.89702 19.7011C3.69238 18.727 3.73484 17.7175 4.02053 16.7639C4.30622 15.8102 4.82614 14.9425 5.53327 14.2393L13.3447 6.45065C13.7658 6.03086 14.0023 5.4618 14.0023 4.86847ZM13.3424 11.0375C13.7649 11.4609 14.0022 12.0347 14.0022 12.6329C14.0022 13.2312 13.7649 13.805 13.3424 14.2284L9.38858 18.1839C8.8241 18.7451 8.37672 19.4129 8.07241 20.1486C7.76811 20.8842 7.61295 21.673 7.61595 22.4692C7.61692 22.8845 7.65997 23.2986 7.74446 23.7053L6.18599 22.1033C5.23793 21.1533 4.70544 19.8658 4.70544 18.5235C4.70544 17.1811 5.23793 15.8936 6.18599 14.9437L11.7279 9.40254L13.3424 11.0375ZM13.3021 22.7473C13.5238 22.9594 13.7 23.2126 13.8202 23.492C13.9405 23.7714 14.0024 24.0714 14.0024 24.3745C14.0024 24.6776 13.9405 24.9776 13.8202 25.257C13.7 25.5365 13.5238 25.7896 13.3021 26.0017L11.6954 27.5671L10.0621 25.9692C9.16557 25.092 8.63499 23.9208 8.57339 22.6831C8.51179 21.4454 8.92357 20.2295 9.72873 19.2716L13.3021 22.7473Z" fill="#fff"></path>
+                </svg>
+            </div>
+        </a>
+        <!-- New Search Bar -->
+        <form class="search-form" action="#" method="get">
+            <input type="search" name="query" placeholder="Căutare...">
+            <!-- Optional: Add search button here -->
+            <!-- <button type="submit">🔍</button> -->
+        </form>
+
+        <!-- Existing Mobile Menu Toggle - might need review later -->
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+        <!-- Main Content Sections -->
+        <main id="main-content">
+            <!-- Hero Section -->
+            <section class="hero">
+                <video autoplay muted loop playsinline>
+                    <source src="placavideoHeroBack.mp4" type="video/mp4">
+                </video>
+                <h1>Placa video</h1>
+                <p>Descoperă lumea fascinantă a procesorului, componenta fundamentală a oricărui sistem de calcul modern.</p>
+                <a href="#content" class="scroll-down">
+                    <span>Scroll pentru a explora</span>
+                </a>
+            </section>
+
+            <!-- Content Section -->
+            <section id="content" class="page-section hardware-section">
+                <canvas id="hardware-particles"></canvas>
+
+                <div class="content-grid">
+                    <div class="content-section">
+                        <div class="animated-bg"></div>
+                        <div class="text-content">
+                            <h2>Placa Video: Fundamente, Performanță și Evoluție Tehnologică</h2>
+                            <h4 class="section-subtitle">Definiție și rol general</h4>
+                            <div class="paragraph-group">
+                                <p>Placa video, cunoscută și sub denumirea de adaptor grafic, reprezintă componenta hardware dedicată generării și procesării conținutului vizual afișat pe ecran. Funcționând ca un subsistem de calcul specializat, aceasta este optimizată pentru a executa operații grafice complexe, necesare în aplicații precum jocurile video, randarea 3D sau editarea video.
+
+                                    Placa video include propria unitate de procesare – GPU (Graphics Processing Unit) – capabilă să execute sarcini paralele cu eficiență ridicată. În plus, aceasta integrează memorie video proprie, de tip GDDR, utilizată pentru stocarea temporară a texturilor, cadrelor și altor date grafice.
+                                    
+                                    Capacitatea memoriei video este exprimată în megabytes (MB) sau gigabytes (GB), iar în configurațiile uzuale variază între 512 MB și 6 GB. Modelele high-end, destinate aplicațiilor profesionale sau gamingului avansat, pot atinge valori de până la 11 GB sau mai mult. Această memorie are un rol esențial în fluiditatea procesării grafice, influențând direct performanța în redarea conținutului vizual complex.</p>
+                            </div>
+                        </div>
+                        <div class="image-placeholder">
+                            <img src="gpu1.jpg" alt="GPU Image">
+                        </div>
+                    </div>
+                    <div class="content-section reversed">
+                        <div class="animated-bg"></div>
+                        <div class="text-content">
+                            <h2>GPU-ul – unitate de procesare dedicată grafică</h2>
+                            <div class="functionareaProc-content">
+                                <p>
+                                    Placa video integrează un procesor grafic dedicat – GPU (Graphics Processing Unit) – responsabil de executarea operațiilor vizuale de mare complexitate. Frecvența de funcționare a GPU-ului, exprimată în gigaherți (GHz), influențează direct performanța acestuia în sarcini precum randarea scenelor 3D sau simularea efectelor vizuale complexe. În multe scenarii, frecvența GPU-ului are un impact mai mare asupra performanței decât capacitatea memoriei video, întrucât memoria doar stochează temporar texturi, culori și alte date grafice, în timp ce procesarea propriu-zisă este realizată de GPU.
+
+                                    Un GPU performant fără suficientă memorie video poate fi constrâns de necesitatea de a încărca date în mod repetat, afectând eficiența generală. În același timp, o cantitate mare de memorie fără un GPU capabil nu îmbunătățește semnificativ performanța. Din acest motiv, producătorii configurează plăcile video cu un echilibru optim între procesor și memorie.
+
+                                    Placa video procesează operații grafice specializate precum manipularea vectorilor, matricilor, aplicarea culorii, intensității și efecte de pixel shading (umbrire). În fluxul de lucru, procesorul central (CPU) inițiază aplicația (ex. un joc), încarcă datele relevante în memoria RAM și transmite, prin interfața PCI Express, instrucțiunile grafice și texturile către memoria plăcii video. GPU-ul procesează apoi aceste date în paralel și trimite rezultatul către monitor.
+
+                                    Spre deosebire de CPU, optimizat pentru sarcini secvențiale și logice, GPU-ul este conceput pentru operații paralele masive, esențiale în redarea graficii moderne. Cele două componente sunt fundamental complementare: CPU-ul execută calcule variate, iar GPU-ul accelerează calculele repetitive și omogene necesare pentru vizualizarea realistă a scenelor digitale.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="image-placeholder">
+                            <video src="gpuvideo.mp4" autoplay muted loop></video>
+                        </div>
+                    </div>
+                    <div class="content-section light-box">
+                        <div class="text-content">
+                            <h2>GDDR – memorie video dedicată</h2>
+                            <div class="functionareaProc-content">
+                                <p>
+                                    Placa video este echipată cu memorie RAM dedicată, denumită GDDR (Graphics Double Data Rate), special concepută pentru a susține volume mari de date grafice cu lățime de bandă ridicată și latență redusă. Această memorie este integrată direct pe placa video și este esențială pentru stocarea texturilor, cadrelor și informațiilor temporare necesare procesării grafice.
+
+                                    Este important de subliniat că memoria GDDR5 nu trebuie confundată cu DDR5, chiar dacă denumirile par similare. GDDR5 (și succesoarea sa, GDDR6) reprezintă o generație de memorie grafică, optimizată pentru transferuri masive de date în paralel, caracteristică fundamentală pentru aplicații precum jocurile sau randarea 3D. În schimb, DDR5 este memoria RAM utilizată în sistemul principal și este proiectată pentru sarcini generale, nu specializate grafic.
+
+                                    Prin urmare, comparația între GDDR și DDR nu este relevantă, deoarece cele două tipuri de memorie deservesc scopuri arhitecturale diferite și au caracteristici tehnice distincte.
+
+                                </p>
+                            </div>
+                        </div>
+                        <div class="image-placeholder">
+                            <video src="gpuvideo2.mp4" autoplay muted loop></video>
+                        </div>
+                    </div>
+                    <div class="content-section reversed">
+                        <div class="animated-bg"></div>
+                        <div class="text-content">
+                            <h2>Imaginea digitala</h2>
+                            <div class="functionareaProc-content">
+                                <p>
+                                    Imaginea digitală este compusă dintr-o matrice bidimensională de elemente denumite pixeli (picture elements), care reprezintă cea mai mică unitate de informație vizuală. Fiecare pixel poate afișa o singură culoare la un moment dat, iar imaginea vizibilă pe monitor este rezultatul combinării unui număr foarte mare de pixeli colorați individual.
+
+                                    În cazul fișierelor video sau jocurilor, percepția de mișcare este obținută prin afișarea secvențială a unor cadre statice (frames), fiecare fiind o imagine completă. Rata de cadre pe secundă (FPS – frames per second) variază: filmele operează în general între 24 și 60 FPS, în timp ce jocurile pot depăși 100 FPS, în funcție de complexitate și capabilitățile hardware.
+
+                                    Pixelii au formă pătrată și sunt organizați într-o grilă sau matrice. Rezoluția unei imagini, exprimată prin înmulțirea numărului de coloane cu cel de linii (ex. 1920×1080), determină claritatea și realismul perceput. Obiectele rotunde sau liniile oblice sunt reprezentate prin aranjamente de pixeli care simulează curburile, iar tehnici precum anti-aliasing sunt utilizate pentru a atenua efectul de "scară" și a crea tranziții mai fine.
+
+                                    Densitatea de pixeli (PPI – pixels per inch) influențează direct calitatea imaginii: o densitate mare face pixelii indistinctibili pentru ochiul uman, rezultând o imagine aparent continuă. Ecranele de înaltă fidelitate, precum Retina Display, pot atinge valori de până la 900 PPI. Pe suport fizic, densitatea este exprimată în DPI (dots per inch), specifică imprimantelor.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="image-placeholder">
+                            <img src="pixelImg.png" alt="GPU Image">
+                        </div>
+                    </div>
+                    <div class="content-section light-box">
+                        <div class="text-content">
+                            <h2>Grafica 3D</h2>
+                            <div class="functionareaProc-content">
+                                <p>
+                                    În mediul digital, reprezentarea tridimensională (3D) este o simulare vizuală construită pe un suport bidimensional (2D), precum ecranul unui monitor. Deși percepția noastră interpretează conținutul ca fiind 3D, în realitate, toate obiectele afișate sunt compuse din poligoane – entități 2D definite prin coordonate în plan (X, Y), cărora li se atribuie un al treilea parametru, adesea Z, utilizat pentru simularea adâncimii și a efectelor de perspectivă.
+
+                                    Această iluzie 3D este posibilă datorită procesării matematice rapide efectuate de placa video, care preia informațiile despre geometrie, iluminare și texturi și le reinterpretează constant în funcție de poziția camerei virtuale (viewport). GPU-ul calculează în timp real poziția fiecărui poligon și intensitatea luminii asupra acestuia, astfel încât obiectele să pară solide și realiste, chiar dacă sunt proiectate pe un plan plat.
+
+                                    Codul sursă al aplicațiilor grafice nu conține elemente 3D în sens fizic – totul este stocat și procesat sub formă de date numerice. Placa video transformă aceste date în imagini bidimensionale dinamice care, prin schimbări continue de perspectivă și lumină, induc creierului nostru senzația de tridimensionalitate.
+
+                                    Astfel, mediul virtual este o construcție perceptivă obținută prin interpretarea unor proiecții matematice, generate în mod intenționat pentru a corespunde modelelor vizuale învățate de creierul uman. Tehnologia grafică digitală funcționează ca un mediu de transpunere a informației numerice în percepție spațială coerentă, folosind reguli și algoritmi fundamentați pe geometrie și fizică simulată.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="image-placeholder">
+                            <img src="gpu1.jpg" alt="GPU Image">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main> 
+        <!-- End Main Content -->
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; margin-top: 4rem;">Resursă educațională despre sistemele de calcul.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Link-uri rapide</h3>
+                <ul>
+                    <li><a href="prinPage.html">Hardware</a></li>
+                    <li><a href="prinPage.html">Software</a></li>
+                    <li><a href="prinPage.html">Galerie</a></li>
+                    <li><a href="prinPage.html">Despre</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Resurse</h3>
+                <ul>
+                    <li><a href="Documentatie atestat.pdf" target="_blank">Documentație</a></li>
+                    <li><a href="#">Alte proiecte ale autorului</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <ul>
+                    <li><a href="#">person@gmail.ro</a></li>
+                    <li>
+                        <a href="https://www.instagram.com" target="_blank">
+                            <img src="instaLogoRound.png" alt="Instagram" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                        <a href="#" target="_blank">
+                            <img src="facebook (4).png" alt="Facebook" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                        <a href="#" target="_blank">
+                            <img src="github-sign.png" alt="Git hub" style="width: 30px; height: 30px; margin-right: 10px;">
+                        </a>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2025 highSchoolFinalProject. All rights reserved.
+            </div>
+        </footer>
+    
+        <script>
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            menuToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+            });
+    
+            // Close menu when clicking a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                });
+            });
+    
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    // Adjust selector for sections if needed
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        // Calculate offset dynamically based on header height
+                        const headerOffset = document.getElementById('header').offsetHeight || 80;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Auto-hide header on scroll
+            let lastScrollY = window.pageYOffset;
+            const header = document.getElementById('header');
+            const scrollThreshold = 5; // Small threshold to prevent jitter
+
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.pageYOffset;
+
+                if (currentScrollY <= 0) {
+                    // Always show header at the very top
+                    header.classList.remove('header-hidden');
+                } else if (currentScrollY > lastScrollY && currentScrollY > scrollThreshold) {
+                    // Scrolling down
+                    header.classList.add('header-hidden');
+                } else if (currentScrollY < lastScrollY) {
+                    // Scrolling up
+                    header.classList.remove('header-hidden');
+                }
+
+                lastScrollY = currentScrollY;
+            });
+
+            // Info Toggle Button
+            const infoBtn = document.getElementById('infoToggleButton');
+            const infoContent = document.getElementById('infoToggleContent');
+            const arrowIcon = infoBtn ? infoBtn.querySelector('.arrow-icon') : null;
+
+            if (infoBtn && infoContent && arrowIcon) {
+                infoBtn.addEventListener('click', () => {
+                    infoContent.classList.toggle('active');
+
+                    // Change arrow direction
+                    if (infoContent.classList.contains('active')) {
+                        arrowIcon.innerHTML = '&#9650;'; // Up arrow
+                    } else {
+                        arrowIcon.innerHTML = '&#9660;'; // Down arrow
+                    }
+                });
+            }
+
+            // Fullscreen box toggle
+            document.querySelectorAll('.show-more-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const subSection = button.closest('.sub-section');
+                    if (subSection) {
+                        subSection.classList.add('fullscreen');
+                        document.body.style.overflow = 'hidden'; // Prevent body scroll
+                        // Also hide the header
+                        header.classList.add('header-hidden');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.close-details-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const subSection = button.closest('.sub-section.fullscreen');
+                    if (subSection) {
+                        subSection.classList.remove('fullscreen');
+                        document.body.style.overflow = ''; // Restore body scroll
+                        // Header visibility will be handled by the scroll listener on next scroll
+                    }
+                });
+            });
+
+            // Constellation Animation
+            document.addEventListener('DOMContentLoaded', () => {
+                const mainContent = document.getElementById('content');
+                const canvas = document.createElement('canvas');
+                canvas.id = 'constellation-canvas';
+                mainContent.appendChild(canvas);
+                
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+                const particleCount = 200;
+                const maxVelocity = 0.5;
+                const connectionDistance = 200;
+                const particleSize = 2;
+
+                function resizeCanvas() {
+                    canvas.width = mainContent.offsetWidth;
+                    canvas.height = mainContent.offsetHeight;
+                }
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = (Math.random() - 0.5) * maxVelocity;
+                        this.vy = (Math.random() - 0.5) * maxVelocity;
+                        this.radius = particleSize;
+                        this.alpha = Math.random() * 0.5 + 0.5;
+                        this.pulseSpeed = Math.random() * 0.02 + 0.01;
+                        this.pulseDirection = 1;
+                    }
+
+                    draw() {
+                        const isLightBox = this.isInLightBox();
+                        const color = isLightBox ? '0, 0, 0' : '255, 255, 255';
+                        
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(${color}, ${this.alpha})`;
+                        ctx.fill();
+                    }
+
+                    isInLightBox() {
+                        // Get all light-box sections
+                        const lightBoxes = document.querySelectorAll('.light-box');
+                        for (const box of lightBoxes) {
+                            const rect = box.getBoundingClientRect();
+                            const mainContentRect = mainContent.getBoundingClientRect();
+                            
+                            // Adjust coordinates relative to mainContent
+                            const relativeX = this.x + mainContentRect.left;
+                            const relativeY = this.y + mainContentRect.top;
+                            
+                            if (relativeX >= rect.left && relativeX <= rect.right &&
+                                relativeY >= rect.top && relativeY <= rect.bottom) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
+                    update() {
+                        this.x += this.vx;
+                        this.y += this.vy;
+
+                        if (this.x < 0 || this.x > canvas.width) {
+                            this.vx *= -1.1;
+                            this.x = Math.max(0, Math.min(canvas.width, this.x));
+                        }
+                        if (this.y < 0 || this.y > canvas.height) {
+                            this.vy *= -1.1;
+                            this.y = Math.max(0, Math.min(canvas.height, this.y));
+                        }
+
+                        this.alpha += this.pulseSpeed * this.pulseDirection;
+                        if (this.alpha > 1) {
+                            this.alpha = 1;
+                            this.pulseDirection = -1;
+                        } else if (this.alpha < 0.3) {
+                            this.alpha = 0.3;
+                            this.pulseDirection = 1;
+                        }
+
+                        if (Math.random() < 0.02) {
+                            this.vx += (Math.random() - 0.5) * 0.2;
+                            this.vy += (Math.random() - 0.5) * 0.2;
+                        }
+                    }
+                }
+
+                function createParticles() {
+                    particles.length = 0;
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push(new Particle());
+                    }
+                }
+
+                function drawConnections() {
+                    for (let i = 0; i < particles.length; i++) {
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const dx = particles[i].x - particles[j].x;
+                            const dy = particles[i].y - particles[j].y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+
+                            if (distance < connectionDistance) {
+                                const opacity = 1 - (distance / connectionDistance);
+                                const isLightBox = particles[i].isInLightBox();
+                                const color = isLightBox ? '0, 0, 0' : '255, 255, 255';
+                                
+                                ctx.beginPath();
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                                ctx.strokeStyle = `rgba(${color}, ${opacity * 0.5})`;
+                                ctx.lineWidth = 0.8;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(particle => {
+                        particle.update();
+                        particle.draw();
+                    });
+
+                    drawConnections();
+                    requestAnimationFrame(animate);
+                }
+
+                resizeCanvas();
+                createParticles();
+                animate();
+
+                window.addEventListener('resize', () => {
+                    resizeCanvas();
+                    createParticles();
+                });
+            });
+
+            function initTextEffect(canvasId) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+                const mouse = { x: 0, y: 0 };
+                const text = "PLACA VIDEO";
+                const fontSize = Math.min(canvas.width / 10, 120);
+                const particleCount = 2000;
+                const maxDistance = 100;
+                const textColor = '#ffffff';
+
+                function resizeCanvas() {
+                    const section = canvas.closest('.hardware-section');
+                    if (section) {
+                        canvas.width = section.offsetWidth;
+                        canvas.height = section.offsetHeight;
+                    }
+                    initParticles();
+                }
+
+                function initParticles() {
+                    particles.length = 0;
+                    
+                    // Create temporary canvas for text
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    
+                    // Draw text
+                    tempCtx.font = `bold ${fontSize}px 'Neue Montreal', sans-serif`;
+                    tempCtx.fillStyle = textColor;
+                    tempCtx.textAlign = 'center';
+                    tempCtx.textBaseline = 'middle';
+                    tempCtx.fillText(text, canvas.width / 2, canvas.height / 2);
+                    
+                    // Get pixel data
+                    const imageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+                    
+                    // Create particles from text pixels
+                    for (let i = 0; i < particleCount; i++) {
+                        const x = Math.random() * canvas.width;
+                        const y = Math.random() * canvas.height;
+                        const pixelIndex = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+                        
+                        if (pixels[pixelIndex + 3] > 128) { // If pixel is not transparent
+                            particles.push({
+                                x: x,
+                                y: y,
+                                originalX: x,
+                                originalY: y,
+                                vx: 0,
+                                vy: 0,
+                                size: 1 + Math.random() * 2
+                            });
+                        }
+                    }
+                }
+
+                function draw() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(particle => {
+                        // Calculate distance from mouse
+                        const dx = mouse.x - particle.x;
+                        const dy = mouse.y - particle.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // Apply force based on mouse position
+                        if (distance < maxDistance) {
+                            const force = (maxDistance - distance) / maxDistance;
+                            particle.vx -= (dx / distance) * force * 2;
+                            particle.vy -= (dy / distance) * force * 2;
+                        }
+                        
+                        // Return to original position
+                        const dx2 = particle.originalX - particle.x;
+                        const dy2 = particle.originalY - particle.y;
+                        particle.vx += dx2 * 0.02;
+                        particle.vy += dy2 * 0.02;
+                        
+                        // Apply friction
+                        particle.vx *= 0.95;
+                        particle.vy *= 0.95;
+                        
+                        // Update position
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+                        
+                        // Draw particle
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                        ctx.fillStyle = textColor;
+                        ctx.fill();
+                    });
+
+                    requestAnimationFrame(draw);
+                }
+
+                // Mouse move handler
+                canvas.addEventListener('mousemove', (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    mouse.x = e.clientX - rect.left;
+                    mouse.y = e.clientY - rect.top;
+                });
+
+                // Mouse leave handler
+                canvas.addEventListener('mouseleave', () => {
+                    mouse.x = -1000;
+                    mouse.y = -1000;
+                });
+
+                resizeCanvas();
+                draw();
+
+                window.addEventListener('resize', resizeCanvas);
+            }
+
+            // Initialize the text effect
+            document.addEventListener('DOMContentLoaded', () => {
+                initTextEffect('hardware-particles');
+            });
+
+            // Add text toggle functionality
+            document.querySelectorAll('.read-more-trigger').forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const extraContent = this.closest('p').nextElementSibling;
+                    extraContent.classList.add('active');
+                });
+            });
+
+            document.querySelectorAll('.close-extra').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    const extraContent = this.closest('.extra-content');
+                    extraContent.classList.remove('active');
+                });
+            });
+
+            // Add this script before the closing body tag
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.addEventListener('click', () => {
+                    // Toggle active class on the clicked title
+                    title.classList.toggle('active');
+                    
+                    // Get the content div that follows this title
+                    const content = title.nextElementSibling;
+                    
+                    // Toggle active class on the content
+                    content.classList.toggle('active');
+                    
+                    // Close other sections
+                    document.querySelectorAll('.section-title').forEach(otherTitle => {
+                        if (otherTitle !== title) {
+                            otherTitle.classList.remove('active');
+                            otherTitle.nextElementSibling.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // Add box expansion functionality
+            document.querySelectorAll('.content-box').forEach(box => {
+                box.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('close-box')) {
+                        this.classList.remove('expanded');
+                        return;
+                    }
+                    
+                    // Close all other boxes
+                    document.querySelectorAll('.content-box').forEach(otherBox => {
+                        if (otherBox !== this) {
+                            otherBox.classList.remove('expanded');
+                        }
+                    });
+                    
+                    // Toggle current box
+                    this.classList.toggle('expanded');
+                });
+            });
+
+            // Add this to your existing script section
+            document.addEventListener('DOMContentLoaded', () => {
+                // Add click event listeners to all expand triggers
+                document.querySelectorAll('.expand-trigger').forEach(trigger => {
+                    trigger.addEventListener('click', () => {
+                        // Toggle active class on the trigger
+                        trigger.classList.toggle('active');
+                        
+                        // Update the text based on state
+                        if (trigger.classList.contains('active')) {
+                            trigger.textContent = 'Inchide informatiile suplimentare';
+                        } else {
+                            trigger.textContent = 'Afiseaza mai multe informatii';
+                        }
+                        
+                        // Get the paragraph group
+                        const paragraphGroup = trigger.closest('.paragraph-group');
+                        
+                        // Toggle expanded class on the paragraph group
+                        paragraphGroup.classList.toggle('expanded');
+                    });
+                });
+            });
+
+            // Remove the image expansion functionality
+            document.addEventListener('DOMContentLoaded', () => {
+                // Create Intersection Observer
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('fade-in');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+
+                // Observe all image placeholders
+                document.querySelectorAll('.image-placeholder').forEach(placeholder => {
+                    observer.observe(placeholder);
+                });
+            });
+
+            // Add smooth scrolling with fallback for older browsers
+            document.addEventListener('DOMContentLoaded', () => {
+                // Smooth scroll for all anchor links
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        
+                        if (targetElement) {
+                            const headerOffset = document.getElementById('header').offsetHeight;
+                            const elementPosition = targetElement.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+
+                // Smooth scroll for programmatic scrolling
+                const smoothScrollTo = (element) => {
+                    const headerOffset = document.getElementById('header').offsetHeight;
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                };
+
+                // Add smooth scroll to scroll-down button
+                const scrollDownButton = document.querySelector('.scroll-down');
+                if (scrollDownButton) {
+                    scrollDownButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const contentSection = document.getElementById('content');
+                        if (contentSection) {
+                            smoothScrollTo(contentSection);
+                        }
+                    });
+                }
+            });
+        </script>
+    </body>
+    </html>

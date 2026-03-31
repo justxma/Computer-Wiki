@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placa de Baza - Arhitectura Sistemelor de Calcul</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <style>
+:root {
+    --bg: #000000;
+    --text: #ffffff; /* Changed from black to white */
+    --primary: #000000;
+    --secondary: #ffffff; /* Changed to white */
+    --accent: #000000;
+    --light-gray: #f0f0f0;
+    --transition: all 0.3s ease-in-out;
+}
+
+@font-face {
+    font-family: 'Neue Montreal';
+    src: url('fonts/NeueMontreal-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #000000;
+    color: white;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 0.8rem 3rem; /* Consistent padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000; /* Increased from 100 to ensure it's above all content */
+    background-color: var(--primary); /* Always black */
+    transition: transform 0.4s ease-in-out; /* Animate transform */
+    transform: translateY(0); /* Start visible */
+}
+
+header a{
+    position: relative;
+    left: 0;
+    transform: translateX(-50%);
+    transition: var(--transition);
+}
+
+header.header-hidden {
+    transform: translateY(-100%); /* Move header off-screen */
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: white; /* Change logo color to white */
+    transition: var(--transition);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    z-index: 999; /* High z-index but still below header */
+}
+
+.nav-links a {
+    color: white; /* Change link color to white */
+    text-decoration: none;
+    font-size: 1rem;
+    position: relative;
+    transition: var(--transition);
+}
+
+.nav-links a:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: white; /* Underline color white */
+    transition: var(--transition);
+}
+
+.nav-links a:hover:after {
+    width: 100%;
+}
+
+/* Hide original nav links on desktop */
+@media (min-width: 769px) { /* Apply above mobile breakpoint */
+    .nav-links {
+        display: none;
+    }
+}
+
+/* Search Bar Styles */
+.search-form {
+    display: flex;
+    align-items: center;
+}
+
+.search-form input[type="search"] {
+    padding: 0.5rem 1rem;
+    border-radius: 20px; /* Rounded corners */
+    background-color: #333; /* Dark background for input */
+    color: white;
+    font-size: 0.9rem;
+    width: 250px; /* Adjust width as needed */
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    margin-right: 0.5rem; /* Space before potential button */
+}
+
+.search-form input[type="search"]::placeholder {
+    color: var(--secondary);
+}
+
+.search-form input[type="search"]:focus {
+    outline: none;
+    border-color: white;
+    background-color: #444;
+    width: 300px; /* Expand on focus */
+}
+/* Optional: Add a search button/icon if needed */
+
+/* Footer */
+footer {
+    padding: 5rem 10% 2rem 10%;
+    background-color: var(--primary);
+    color: white;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.footer-col h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-col a {
+    color: rgba(255, 255, 255, 0.397);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-col a:hover {
+    color: white;
+}
+
+.footer-col img{
+    transition: var(--transition);
+    filter: brightness(0) invert(1); /* Makes the images white */
+    border-radius: 8px;
+}
+
+.footer-col img:hover{
+    box-shadow: 0 0 30px var(--bg);
+    filter: brightness(0) invert(1); /* Keep images white on hover */
+}
+
+.copyright {
+    padding-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+}
+
+/* Mobile Menu */
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    z-index: 101;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+
+    .about-image {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1.5rem;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--bg);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .hero {
+        padding: 0 1.5rem;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Remove unused particle effects */
+#software-particles,
+#gallery-particles,
+#despre-particles {
+    display: none;
+}
+
+/* Keep only necessary styles */
+.page-section {
+    padding: 4rem 6%;
+    margin: 4rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.sub-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 10rem auto;
+    text-align: center;
+}
+.sub-section h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: white; /* Changed to white */
+}
+/* Placeholder styles */
+.placeholder {
+    width: 100%;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+/* Hardware section specific */
+.hardware-section {
+    position: relative;
+}
+
+#hardware-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Button styles */
+/* From Uiverse.io by TISEPSE */
+.btn2 {
+  position: relative;
+  display: inline-block;
+  padding: 15px 30px;
+  border: 2px solid #fefefe;
+  text-transform: uppercase;
+  color: #fefefe;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 50px;
+  transition: 0.3s;
+  margin-bottom: 3rem;
+  cursor: default;
+}
+
+.btn2::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - -2px);
+  background-color: #000000;
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+}
+
+.btn2::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 50px);
+  background-color: #000000;
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+}
+
+.btn2:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.btn2:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.btn2:hover {
+  border: 2px solid #fefefe;
+}
+
+.btn2 span {
+  position: relative;
+  z-index: 3;
+}
+
+.button {
+  text-decoration: none;
+  border: none;
+  background-color: transparent;
+}
+
+/* Add this to the existing styles section */
+.home-link {
+    position: relative;
+    right: 6%;
+    color: rgba(255, 255, 255, 0.397);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 1rem;
+    text-transform: uppercase;
+    margin: 0 0px 0 265px;
+}
+
+.home-link:hover {
+    color: white;
+}
+
+/* Add these styles to your existing CSS */
+.read-more-trigger {
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 5px;
+    transition: var(--transition);
+}
+
+.read-more-trigger:hover {
+    color: white;
+}
+
+/* Replace the existing extra-content styles */
+.extra-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.2s ease;
+            margin-top: 1rem;
+            padding: 0 1rem;
+            background: rgba(255, 255, 255, 0.058); /* Semi-transparent white background */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* For Safari support */
+            border-radius: 8px;
+            transform-origin: top;
+            transform: translateY(-10px);
+            color: rgb(255, 255, 255);
+            border: 1px solid rgba(0, 0, 0, 0.1); /* Subtle border */
+        }
+
+        .extra-content.active {
+            max-height: 2000px;
+            opacity: 1;
+            padding: 2rem; /* Increased padding for better readability */
+            transform: translateY(0);
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+            transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+            padding 0.2s ease;
+        }
+
+        .extra-content.closing {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 1rem;
+            transform: translateY(-10px);
+        }
+
+        .close-extra {
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            display: block;
+            margin-top: 1rem;
+            text-align: right;
+            transition: var(--transition);
+        }
+
+        .close-extra:hover {
+            color: rgb(255, 255, 255);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <a href="prinPage.html">
+            <div class="logo-container">
+                <svg width="33" height="43" viewBox="0 0 18 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.0023 4.86847C14.0023 4.27515 13.7658 3.70609 13.3447 3.2863L11.7281 1.67969L2.31641 11.0521C1.84958 11.5162 1.47921 12.0673 1.22652 12.674C0.973819 13.2808 0.84375 13.9312 0.84375 14.588C0.84375 15.2448 0.973819 15.8952 1.22652 16.502C1.47921 17.1087 1.84958 17.6598 2.31641 18.1238L3.89702 19.7011C3.69238 18.727 3.73484 17.7175 4.02053 16.7639C4.30622 15.8102 4.82614 14.9425 5.53327 14.2393L13.3447 6.45065C13.7658 6.03086 14.0023 5.4618 14.0023 4.86847ZM13.3424 11.0375C13.7649 11.4609 14.0022 12.0347 14.0022 12.6329C14.0022 13.2312 13.7649 13.805 13.3424 14.2284L9.38858 18.1839C8.8241 18.7451 8.37672 19.4129 8.07241 20.1486C7.76811 20.8842 7.61295 21.673 7.61595 22.4692C7.61692 22.8845 7.65997 23.2986 7.74446 23.7053L6.18599 22.1033C5.23793 21.1533 4.70544 19.8658 4.70544 18.5235C4.70544 17.1811 5.23793 15.8936 6.18599 14.9437L11.7279 9.40254L13.3424 11.0375ZM13.3021 22.7473C13.5238 22.9594 13.7 23.2126 13.8202 23.492C13.9405 23.7714 14.0024 24.0714 14.0024 24.3745C14.0024 24.6776 13.9405 24.9776 13.8202 25.257C13.7 25.5365 13.5238 25.7896 13.3021 26.0017L11.6954 27.5671L10.0621 25.9692C9.16557 25.092 8.63499 23.9208 8.57339 22.6831C8.51179 21.4454 8.92357 20.2295 9.72873 19.2716L13.3021 22.7473Z" fill="#fff"></path>
+                </svg>
+            </div>
+        </a>
+        <!-- New Search Bar -->
+        <form class="search-form" action="#" method="get">
+            <input type="search" name="query" placeholder="Căutare...">
+            <!-- Optional: Add search button here -->
+            <!-- <button type="submit">🔍</button> -->
+        </form>
+
+        <!-- Existing Mobile Menu Toggle - might need review later -->
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+        <!-- Main Content Sections -->
+        <main id="main-content">
+            <!-- Hardware Section -->
+            <section id="hardware" class="page-section hardware-section">
+                <canvas id="hardware-particles"></canvas>
+
+                <!-- Subsections within Hardware - WRAPPED in a grid container -->
+                <div class="sub-section-grid">
+                    <div id="procesor" class="sub-section">
+                        <!-- From Uiverse.io by TISEPSE -->
+                        <button class="button" id="infoToggleButton">
+                            <a href="#" class="btn2"><span class="spn2">Placa de baza</span></a>
+                        </button>
+                        <p>
+                            Placa de bază (mainboard/motherboard) este componenta centrală a unui calculator, care asigură interconectarea și alimentarea tuturor celorlalte componente hardware. Ea joacă rolul de interfață între procesor, memorie, stocare, plăci de extensie și periferice, permițând transferul de date între acestea prin magistrale și chipseturi dedicate.
+                            <span class="read-more-trigger">Citește mai mult</span>
+                        </p>
+                        <div class="extra-content">
+                            <p>Structura și componentele unei plăci de bază:</p>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>1. Socket-ul procesorului (CPU Socket)</strong><br>
+                                    • Interfață fizică unde se instalează procesorul<br>
+                                    • Tipurile de socket determină compatibilitatea plăcii cu anumite familii de procesoare<br>
+                                    • Exemple: Intel LGA 1151, 1200, 1700; AMD AM4, AM5<br>
+                                    • Sockets LGA (Land Grid Array) au pini în placă, iar PGA (Pin Grid Array) – pini pe procesor
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>2. Sloturi RAM (DIMM)</strong><br>
+                                    • Sloturi pentru instalarea modulelor de memorie RAM<br>
+                                    • Tipuri: DDR3, DDR4, DDR5 (nu sunt compatibile între ele)<br>
+                                    • Sloturile sunt de obicei în perechi și pot suporta funcții ca dual-channel sau quad-channel
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>3. Chipsetul (Northbridge și Southbridge / PCH)</strong><br>
+                                    • Controlerul logic care gestionează comunicarea între CPU, RAM, GPU, SSD, USB etc.<br>
+                                    • Modern, Northbridge este integrat în CPU, iar Southbridge a fost înlocuit de PCH<br>
+                                    • Chipsetul determină caracteristici ca overclocking, număr de porturi SATA, suport RAID
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>4. Sloturi de extensie</strong><br>
+                                    • PCI Express (PCIe): Standard modern pentru plăci video, SSD-uri NVMe, plăci de rețea<br>
+                                    • PCI: Standard vechi pentru plăci de sunet, rețea sau TV-tuner<br>
+                                    • AGP: Slot dedicat pentru plăci video vechi
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>5. Conectori de stocare</strong><br>
+                                    • SATA III (6 Gbps): Conectează HDD-uri, SSD-uri și unități optice<br>
+                                    • M.2: Suport pentru SSD-uri moderne, NVMe sau SATA<br>
+                                    • U.2: Conector profesional pentru SSD-uri NVMe de înaltă performanță
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>6. Alimentare</strong><br>
+                                    • ATX 24 pini: Conector principal de alimentare<br>
+                                    • 4/8 pini CPU (EPS 12V): Conector dedicat pentru procesor<br>
+                                    • Conectori suplimentari pentru plăci video și VRM-uri
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>7. VRM (Voltage Regulator Module)</strong><br>
+                                    • Circuit care reglează tensiunea livrată către procesor și RAM<br>
+                                    • Calitatea și numărul de faze influențează stabilitatea în overclocking
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>8. BIOS/UEFI și CMOS</strong><br>
+                                    • BIOS/UEFI: Firmware-ul de pornire al sistemului<br>
+                                    • Setările sunt salvate în CMOS, alimentat de o baterie CR2032<br>
+                                    • UEFI oferă suport pentru discuri >2TB, interfață grafică, boot securizat
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>9. Porturi și interfețe externe</strong><br>
+                                    • USB 2.0/3.0/3.1/3.2/USB-C: Conectivitate periferică<br>
+                                    • HDMI/DisplayPort/DVI/VGA: Video output pentru GPU integrat<br>
+                                    • RJ-45 (LAN): Conector de rețea<br>
+                                    • Audio (jack 3.5mm/S/PDIF): Ieșiri pentru sunet
+                                </li>
+                            </ul>
+
+                            <p style="margin-top: 2rem;"><strong>Clasificarea plăcilor de bază:</strong></p>
+
+                            <p><strong>După platforma procesorului:</strong></p>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>Intel:</strong><br>
+                                    • Socket 775: Core 2 Duo, Pentium 4<br>
+                                    • Socket 1150/1151/1155/1156: Core i3/i5/i7, Pentium, Celeron<br>
+                                    • Socket 1200: Comet Lake (10th gen), Rocket Lake (11th gen)<br>
+                                    • Socket 1700: Alder Lake, Raptor Lake (12th–14th gen)<br>
+                                    • Socket 2066/2011: Serii HEDT (i7 Extreme, i9, Xeon)
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <strong>AMD:</strong><br>
+                                    • Socket AM2/AM3/AM3+: Phenom, Athlon, FX<br>
+                                    • Socket AM4: Ryzen (seriile 1000–5000)<br>
+                                    • Socket AM5: Ryzen 7000+ (DDR5 only)<br>
+                                    • Socket FM1/FM2/FM2+: Serii Vision A, Athlon II
+                                </li>
+                            </ul>
+
+                            <p style="margin-top: 2rem;"><strong>După format (form factor):</strong></p>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <li style="margin-bottom: 1rem;">
+                                    • ATX: Format standard, 305 × 244 mm – ideal pentru sisteme desktop de performanță<br>
+                                    • Micro-ATX: 244 × 244 mm – mai compact, mai puține sloturi de expansiune<br>
+                                    • Mini-ITX: 170 × 170 mm – extrem de compact, ideal pentru PC-uri SFF<br>
+                                    • E-ATX: Extended ATX – mai mare decât ATX, folosit în stații de lucru și servere
+                                </li>
+                            </ul>
+
+                            <p style="margin-top: 2rem;"><strong>Funcționalități moderne:</strong></p>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <li style="margin-bottom: 1rem;">
+                                    • Wi-Fi/Bluetooth onboard: Pe modele premium<br>
+                                    • LAN 2.5G/10G: Rețea de mare viteză<br>
+                                    • Suport RAID: Configurarea mai multor HDD/SSD în moduri RAID 0, 1, 5 etc.<br>
+                                    • Suport TPM 2.0: Necesitate pentru Windows 11<br>
+                                    • Header ARGB/RGB: Pentru iluminare RGB controlabilă (placi gaming)
+                                </li>
+                            </ul>
+                            <span class="close-extra">Închide informațiile suplimentare</span>
+                        </div>
+                        <div class="placeholder" style="cursor: pointer; min-height: 200px; display: flex; flex-direction: column; justify-content: center; transition: all 0.3s ease; overflow: hidden; padding: 0; position: relative;" id="video-card-image-container">
+                            <div id="video-card-image-preview" style="width: 100%; position: relative;">
+                                <img src="motherBoard2.jpg" alt="" style="width: 100%; height: auto; object-fit: cover;">
+                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center;">
+                                    <span style="color: white; font-size: 24px; text-align: center; z-index: 10;">Imagine Placa Video</span>
+                                </div>
+                            </div>
+                            <div id="full-video-card-image" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); z-index: 1000; justify-content: center; align-items: center;">
+                                <img src="motherBoard2.jpg" alt="" style="max-width: 90%; max-height: 90%;">
+                                <button id="close-video-card-button" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">×</button>
+                            </div>
+                        </div>
+
+                        <!-- Carousel Section -->
+                        <div class="placeholder" style="cursor: pointer; min-height: 200px; display: flex; flex-direction: column; justify-content: center; transition: all 0.3s ease; overflow: hidden; padding: 0; position: relative;" id="image-container">
+                            <div id="image-preview" style="width: 100%; position: relative;">
+                                <div id="carousel" style="position: relative; width: 100%; height: 200px; overflow: hidden;">
+                                    <div class="carousel-inner" style="display: flex; transition: transform 0.5s ease;">
+                                        <div class="carousel-item" style="min-width: 100%;">
+                                            <img src="structuraPlacaBaza.png" alt="" style="width: 100%; height: auto; object-fit: cover;">
+                                        </div>
+                                        <div class="carousel-item" style="min-width: 100%;">
+                                            <img src="structuraPLaca2.png" alt="" style="width: 100%; height: auto; object-fit: cover;">
+                                        </div>
+                                        <div class="carousel-item" style="min-width: 100%;">
+                                            <img src="structuraPlaca3.png" alt="" style="width: 100%; height: auto; object-fit: cover;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center;">
+                                    <span style="color: white; font-size: 24px; text-align: center; z-index: 10;">Structura Placii</span>
+                                </div>
+                                <button id="prev-button" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 20px; cursor: pointer; z-index: 10;">❮</button>
+                                <button id="next-button" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 20px; cursor: pointer; z-index: 10;">❯</button>
+                            </div>
+                            <div id="full-image" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); z-index: 1000; justify-content: center; align-items: center;">
+                                <img src="" alt="" style="max-width: 90%; max-height: 90%;">
+                                <button id="close-button" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">×</button>
+                                <button id="full-prev-button" style="position: absolute; top: 50%; left: 20px; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 20px; cursor: pointer; z-index: 10;">❮</button>
+                                <button id="full-next-button" style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 20px; cursor: pointer; z-index: 10;">❯</button>
+                            </div>
+                        </div>
+                        <!-- End Carousel Section -->
+
+                        <div class="placeholder" style="cursor: pointer; min-height: 200px; display: flex; flex-direction: column; justify-content: center; transition: all 0.3s ease; overflow: hidden; padding: 0;" id="table-container">
+                            <div id="table-preview" style="width: 100%;">
+                                <table style="width: 100%; border-collapse: collapse; color: white; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">Caracteristică</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">Intel LGA 1700</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">Intel LGA 1851</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Procesoare compatibile</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Core i9/i7/i5/i3 Gen 12–14</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Core i9/i7/i5 Gen 15+</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Generație DDR</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR4 / DDR5</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR5 doar</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p style="text-align: center; margin-top: 1rem; color: rgba(255, 255, 255, 0.7);">Click pentru a vedea tabelul complet</p>
+                            </div>
+                            <div id="full-table" style="display: none; width: 100%;">
+                                <table style="width: 100%; border-collapse: collapse; color: white; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">Caracteristică</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">Intel LGA 1700</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">Intel LGA 1851 <span style="color: rgba(255, 255, 255, 0.6);">(următor)</span></th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">AMD AM4</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">AMD AM5</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Procesoare compatibile</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Core i9/i7/i5/i3 Gen 12–14 (Alder/Raptor)</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Core i9/i7/i5 Gen 15+ (Arrow Lake) <span style="color: rgba(255, 255, 255, 0.6);">(așteptat)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Ryzen 1000–5000, Athlon, APU Ryzen G</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Ryzen 7000+, viitoare generații</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Generație DDR</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR4 / DDR5</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR5 doar <span style="color: rgba(255, 255, 255, 0.6);">(așteptat)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR4</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR5 doar</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Lansare</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">2021</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">2024–2025 <span style="color: rgba(255, 255, 255, 0.6);">(așteptat)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">2017</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">2022</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Compatibilitate RAM</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR4 3200 / DDR5 4800+</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR5 5600+ <span style="color: rgba(255, 255, 255, 0.6);">(estimativ)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR4 2133–4000+</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">DDR5 4800–6400+</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>PCI Express</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">PCIe 4.0 / 5.0</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">PCIe 5.0 complet <span style="color: rgba(255, 255, 255, 0.6);">(așteptat)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">PCIe 3.0 / 4.0</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">PCIe 4.0 / 5.0</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Suport NVMe M.2</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da (PCIe 4.0/5.0)</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da (PCIe 5.0) <span style="color: rgba(255, 255, 255, 0.6);">(așteptat)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da (PCIe 3.0/4.0)</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da (PCIe 5.0)</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Suport Wi-Fi 6/6E/BT</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">În funcție de placă</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da, nativ <span style="color: rgba(255, 255, 255, 0.6);">(pe chipseturi noi)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Opțional</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da, prezent</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Overclocking CPU</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da (chipseturi Z)</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da <span style="color: rgba(255, 255, 255, 0.6);">(probabil similar)</span></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da (B/X)</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da (chiar B650)</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>Durată de viață platformă</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Până la Gen 14 (2024)</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Început de ciclu (3-4 ani)</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Finalizată</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Până în 2027+</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><strong>TPM 2.0</strong></td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Inclus în procesor</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Da</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">fTPM</td>
+                                            <td style="padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">fTPM 2.0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p style="text-align: center; margin-top: 1rem; color: rgba(255, 255, 255, 0.7); cursor: pointer;" onclick="event.stopPropagation(); toggleTable()">Click pentru a închide tabelul</p>
+                            </div>
+                        </div>
+
+                        <script>
+                            function toggleTable() {
+                                const preview = document.getElementById('table-preview');
+                                const fullTable = document.getElementById('full-table');
+                                const container = document.getElementById('table-container');
+
+                                if (preview.style.display !== 'none') {
+                                    preview.style.display = 'none';
+                                    fullTable.style.display = 'block';
+                                    container.style.height = 'auto';
+                                    container.style.minHeight = 'auto';
+                                } else {
+                                    preview.style.display = 'block';
+                                    fullTable.style.display = 'none';
+                                    container.style.height = '200px';
+                                    container.style.minHeight = '200px';
+                                }
+                            }
+
+                            // Add click event to container
+                            document.getElementById('table-container').addEventListener('click', function() {
+                                if (document.getElementById('table-preview').style.display !== 'none') {
+                                    toggleTable();
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- End Main Content -->
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-grid">
+        <div class="footer-col">
+            <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; margin-top: 4rem;">Resursă educațională despre sistemele de calcul.</p>
+        </div>
+
+        <div class="footer-col">
+            <h3>Link-uri rapide</h3>
+            <ul>
+                <li><a href="prinPage.html">Hardware</a></li>
+                <li><a href="prinPage.html">Software</a></li>
+                <li><a href="prinPage.html">Galerie</a></li>
+                <li><a href="prinPage.html">Despre</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h3>Resurse</h3>
+            <ul>
+                <li><a href="Documentatie atestat.pdf" target="_blank">Documentație</a></li>
+                <li><a href="#">Alte proiecte ale autorului</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h3>Contact</h3>
+            <ul>
+                <li><a href="#">person@gmail.ro</a></li>
+                <li>
+                    <a href="https://www.instagram.com" target="_blank">
+                        <!-- <img src="instaLogoRound.png" alt="Instagram" style="width: 30px; height: 30px; margin-right: 10px;"> -->
+                        <img src="instagramLogo-removebg-preview.png" alt="Instagram" style="width: 30px; height: 30px; margin-right: 10px;">
+                    </a>
+                    <a href="#" target="_blank">
+                        <img src="facebook (4).png" alt="Facebook" style="width: 30px; height: 30px; margin-right: 10px;">
+                    </a>
+                    <a href="#" target="_blank">
+                        <img src="github-sign.png" alt="Git hub" style="width: 30px; height: 30px; margin-right: 10px;">
+                    </a>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            &copy; 2025 highSchoolFinalProject. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function() {
+                navLinks.classList.remove('active');
+                menuToggle.classList.remove('active');
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                // Adjust selector for sections if needed
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    // Calculate offset dynamically based on header height
+                    const headerOffset = document.getElementById('header').offsetHeight || 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Auto-hide header on scroll
+        let lastScrollY = window.pageYOffset;
+        const header = document.getElementById('header');
+        const scrollThreshold = 5; // Small threshold to prevent jitter
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.pageYOffset;
+
+            if (currentScrollY <= 0) {
+                // Always show header at the very top
+                header.classList.remove('header-hidden');
+            } else if (currentScrollY > lastScrollY && currentScrollY > scrollThreshold) {
+                // Scrolling down
+                header.classList.add('header-hidden');
+            } else if (currentScrollY < lastScrollY) {
+                // Scrolling up
+                header.classList.remove('header-hidden');
+            }
+
+            lastScrollY = currentScrollY;
+        });
+
+        // Info Toggle Button
+        const infoBtn = document.getElementById('infoToggleButton');
+        const infoContent = document.getElementById('infoToggleContent');
+        const arrowIcon = infoBtn ? infoBtn.querySelector('.arrow-icon') : null;
+
+        if (infoBtn && infoContent && arrowIcon) {
+            infoBtn.addEventListener('click', () => {
+                infoContent.classList.toggle('active');
+
+                // Change arrow direction
+                if (infoContent.classList.contains('active')) {
+                    arrowIcon.innerHTML = '&#9650;'; // Up arrow
+                } else {
+                    arrowIcon.innerHTML = '&#9660;'; // Down arrow
+                }
+            });
+        }
+
+        // Fullscreen box toggle
+        document.querySelectorAll('.show-more-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const subSection = button.closest('.sub-section');
+                if (subSection) {
+                    subSection.classList.add('fullscreen');
+                    document.body.style.overflow = 'hidden'; // Prevent body scroll
+                    // Also hide the header
+                    header.classList.add('header-hidden');
+                }
+            });
+        });
+
+        document.querySelectorAll('.close-details-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const subSection = button.closest('.sub-section.fullscreen');
+                if (subSection) {
+                    subSection.classList.remove('fullscreen');
+                    document.body.style.overflow = ''; // Restore body scroll
+                    // Header visibility will be handled by the scroll listener on next scroll
+                }
+            });
+        });
+
+        // Constellation Canvas Animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('constellation-canvas');
+            if (!canvas) {
+                console.error('Canvas element with ID "constellation-canvas" not found.');
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+            const particles = [];
+            const particleCount = 50; // Fewer particles for a subtle effect
+            const maxVelocity = 0.3;
+            const connectionDistance = 100;
+
+            // Resize canvas to fit the window
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            // Particle class
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * maxVelocity;
+                    this.vy = (Math.random() - 0.5) * maxVelocity;
+                    this.radius = Math.random() * 2 + 1;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // Changed to white
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Bounce off edges
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+            }
+
+            // Create particles
+            function createParticles() {
+                particles.length = 0;
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            // Draw connections between particles
+            function drawConnections() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < connectionDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / connectionDistance})`; // Changed to white
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                            ctx.closePath();
+                        }
+                    }
+                }
+            }
+
+            // Animate particles
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+
+                drawConnections();
+                requestAnimationFrame(animate);
+            }
+
+            // Initialize animation
+            resizeCanvas();
+            createParticles();
+            animate();
+
+            // Resize canvas on window resize
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                createParticles();
+            });
+        });
+
+        function initConstellationEffect(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            // Set particle color based on section
+            const particleColor = 'rgba(255, 255, 255, 0.9)'; /* Always white particles */
+
+            // Adjust parameters based on section
+            const params = canvasId === 'hardware-particles'
+                ? {
+                    particleCount: 80,    // More particles for hardware
+                    connectionDistance: 250,  // Longer connections
+                    maxVelocity: 0.6,     // Faster movement
+                    minRadius: 1,         // Larger particles
+                    maxRadius: 3
+                  }
+                : {
+                    particleCount: 60,
+                    connectionDistance: 200,
+                    maxVelocity: 0.4,
+                    minRadius: 0.5,
+                    maxRadius: 2
+                  };
+
+            const ctx = canvas.getContext('2d');
+            const particles = [];
+
+            function resizeCanvas() {
+                const section = canvas.closest('.page-section');
+                if (section) {
+                    canvas.width = section.offsetWidth;
+                    canvas.height = section.offsetHeight;
+                }
+            }
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * params.maxVelocity;
+                    this.vy = (Math.random() - 0.5) * params.maxVelocity;
+                    this.radius = Math.random() * (params.maxRadius - params.minRadius) + params.minRadius;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = particleColor;
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Bounce off edges
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+            }
+
+            function createParticles() {
+                particles.length = 0;
+                for (let i = 0; i < params.particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function drawConnections() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < params.connectionDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            const opacity = (1 - distance / params.connectionDistance) * 0.5; // Increased base opacity
+                            ctx.strokeStyle = particleColor.replace('0.9', opacity);
+                            ctx.lineWidth = 0.5; // Slightly thicker lines
+                            ctx.stroke();
+                            ctx.closePath();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw connections first (behind particles)
+                drawConnections();
+
+                // Then draw and update particles
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            // Initialize
+            resizeCanvas();
+            createParticles();
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                createParticles();
+            });
+        }
+
+        // Initialize the constellation effect for both sections
+        document.addEventListener('DOMContentLoaded', () => {
+            initConstellationEffect('hardware-particles');
+        });
+
+        // Add text toggle functionality
+        document.querySelectorAll('.read-more-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function() {
+                const extraContent = this.closest('p').nextElementSibling;
+                extraContent.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.close-extra').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                const extraContent = this.closest('.extra-content');
+                extraContent.classList.add('closing');
+                setTimeout(() => {
+                    extraContent.classList.remove('active', 'closing');
+                }, 500); // Match the transition duration
+            });
+        });
+
+        // Carousel Logic
+        let currentIndex = 0;
+        const items = document.querySelectorAll('.carousel-item');
+        const totalItems = items.length;
+        const carouselInner = document.querySelector('.carousel-inner');
+        const fullImage = document.getElementById('full-image');
+        const fullImageImg = fullImage.querySelector('img');
+
+        function updateCarousel() {
+            carouselInner.style.transform = `translateX(-${currentIndex * 100}%)`;
+            fullImageImg.src = items[currentIndex].querySelector('img').src;
+        }
+
+        function showImage(index) {
+            currentIndex = (index + totalItems) % totalItems;
+            updateCarousel();
+        }
+
+        document.getElementById('prev-button').addEventListener('click', function(event) {
+            event.stopPropagation();
+            showImage(currentIndex - 1);
+        });
+
+        document.getElementById('next-button').addEventListener('click', function(event) {
+            event.stopPropagation();
+            showImage(currentIndex + 1);
+        });
+
+        document.getElementById('full-prev-button').addEventListener('click', function(event) {
+            event.stopPropagation();
+            showImage(currentIndex - 1);
+        });
+
+        document.getElementById('full-next-button').addEventListener('click', function(event) {
+            event.stopPropagation();
+            showImage(currentIndex + 1);
+        });
+
+        function toggleImage() {
+            fullImage.style.display = 'flex';
+        }
+
+        // Add click event to container
+        document.getElementById('image-container').addEventListener('click', function() {
+            toggleImage();
+        });
+
+        // Close full image when clicking on the close button
+        document.getElementById('close-button').addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent the click event from bubbling up to the full-image div
+            fullImage.style.display = 'none';
+        });
+
+        // Video Card Image Toggle
+        function toggleVideoCardImage() {
+            const fullImage = document.getElementById('full-video-card-image');
+            fullImage.style.display = 'flex';
+        }
+
+        // Add click event to container
+        document.getElementById('video-card-image-container').addEventListener('click', function() {
+            toggleVideoCardImage();
+        });
+
+        // Close full image when clicking on the close button
+        document.getElementById('close-video-card-button').addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent the click event from bubbling up to the full-image div
+            document.getElementById('full-video-card-image').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

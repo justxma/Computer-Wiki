@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria - Arhitectura Sistemelor de Calcul</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --primary: #000000;
+            --secondary: #ffffff;
+            --accent: #000000;
+            --light-gray: #f0f0f0;
+            --transition: all 0.3s ease-in-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #000000;
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 0.8rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background-color: var(--primary);
+            transition: transform 0.4s ease-in-out;
+            transform: translateY(0);
+        }
+
+        header a {
+            position: relative;
+            left: 0;
+            transform: translateX(-50%);
+            transition: var(--transition);
+        }
+
+        header.header-hidden {
+            transform: translateY(-100%);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: white;
+            transition: var(--transition);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            z-index: 999;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+        /* Search Bar Styles */
+.search-form {
+    display: flex;
+    align-items: center;
+    margin-left: 80%;
+
+}
+
+.search-form input[type="search"] {
+    padding: 0.5rem 1rem;
+    border-radius: 20px; /* Rounded corners */
+    background-color: #333; /* Dark background for input */
+    color: white;
+    font-size: 0.9rem;
+    width: 250px; /* Adjust width as needed */
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    margin-right: 0.5rem; /* Space before potential button */
+}
+
+.search-form input[type="search"]::placeholder {
+    color: var(--secondary);
+}
+
+.search-form input[type="search"]:focus {
+    outline: none;
+    border-color: white;
+    background-color: #444;
+    width: 300px; /* Expand on focus */
+}
+        @media (min-width: 769px) {
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0 2rem;
+            position: relative;
+            background-color: #000000 !important;
+            margin-bottom: 0;
+            overflow: hidden;
+            text-align: center;
+            z-index: 2; /* Higher than constellation */
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark overlay for better text visibility */
+            z-index: 1;
+        }
+
+        .hero video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        .hero h1, .hero p, .hero .scroll-down {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: clamp(4rem, 8vw, 8rem);
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            color: white;
+            text-align: center;
+            letter-spacing: -0.02em;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .hero h1:hover {
+            transform: scale(1.05);
+        }
+
+        .hero h1::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .hero h1:hover::after {
+            width: 80%;
+        }
+
+        .hero p {
+            font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+            max-width: 600px;
+            margin: 0 auto;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+        
+        /* Update scroll down indicator */
+        .scroll-down {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: opacity 0.3s ease;
+            text-align: center;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .scroll-down span {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
+        }
+
+        .scroll-down:hover {
+            opacity: 0.7;
+        }
+
+        /* Content Section */
+        .content-section {
+            height: 150px;
+            display: flex;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .trigger {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 1.5rem 2rem;
+            /* border-radius: 10px; */
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            /* backdrop-filter: blur(10px); */
+            /* -webkit-backdrop-filter: blur(10px); */
+            transition: var(--transition);
+        }
+
+        .trigger span {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .trigger span::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .trigger:hover span::after {
+            width: 80%;
+        }
+
+        /* Specific color for white trigger underline */
+        .white-trigger span::after {
+            background: white;
+        }
+
+        /* Specific color for black trigger underline */
+        .black-trigger span::after {
+            background: white;
+        }
+
+        .white-trigger {
+            color: var(--text);
+            /* background: transparent; */
+            /* backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); */
+            border-right: 2px solid #ffffff;
+            
+        }
+
+        .white-trigger:hover {
+            color: var(--light-gray);
+            backdrop-filter: blur(6px);
+        }
+
+        .black-trigger {
+            color: #ffffff;
+            /* background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); */
+            border-left: 2px solid #ffffff;
+        }
+
+        .black-trigger:hover {
+            color: #e0e0e0;
+            backdrop-filter: blur(6px);
+        }
+
+        .additional-content {
+            width: 100%;
+            display: none;
+            padding: 40px;
+            box-sizing: border-box;
+            min-height: 400px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .additional-content.active {
+            display: block;
+        }
+
+        .additional-content-Ram, .additional-content-Rom {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: none;
+            padding: 2rem;
+            box-sizing: border-box;
+            min-height: 400px;
+            margin: 2rem;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            margin: 0 auto;
+        }
+
+
+        .additional-content-Rom {
+            background: rgba(0, 0, 0, 0.95);
+        }
+
+        .content-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8rem;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            align-items: center;
+            max-width: 1400px;
+            background: transparent;
+        }
+
+        .section-text {
+            background: transparent;
+            border-radius: 0;
+            padding: 6rem 3rem;
+            color: white;
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 350px; /* Increased from default */
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 2px solid rgb(0, 0, 0); /* Added border */
+            overflow: hidden; /* Ensure content stays within borders */
+        }
+
+        .image-placeholder img, 
+        .image-placeholder video,
+        .large-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 13px; /* Slightly smaller to prevent edge overlap */
+        }
+
+        /* New styles for RAM content layout */
+        .ram-title {
+            text-align: left;
+            padding: 2rem 4rem;
+            width: 100%;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .ram-title .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .ram-intro {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6rem;
+            padding: 2rem 4rem;
+            align-items: center;
+            margin-top: -12rem;
+        }
+
+        .ram-types-operation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0rem;
+            /* padding: 4rem; */
+            margin-top: 4rem;
+        }
+
+        .ram-types, .ram-operation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .ram-types h2, .ram-operation h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+        }
+
+        .ram-types p, .ram-operation p {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .ram-inside {
+            text-align: center;
+            padding: 4rem 0;
+            max-width: 800px;
+            margin: -10rem auto 0 auto;
+        }
+
+        .ram-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 2rem 4rem;
+        }
+
+        .ram-images img {
+            width: 100%;
+            height: 200px; /* Fixed height for consistency */
+            object-fit: cover;
+            border-radius: 15px;
+            border: 2px solid rgb(0, 0, 0); /* Added border */
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .ram-images img:hover {
+            transform: scale(1.05);
+        }
+
+        .large-placeholder {
+            width: 100%;
+            height: 350px; /* Increased from 400px */
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 2px solid rgb(0, 0, 0); /* Added border */
+        }
+
+        /* ROM section */
+        .rom-title {
+            text-align: left;
+            padding: 2rem 4rem;
+            width: 100%;
+            margin: 0;
+            color:var(--text)
+        }
+
+        .rom-title .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .rom-intro {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6rem;
+            padding: 2rem 4rem;
+            align-items: center;
+            margin-top: -12rem;
+        }
+
+        .rom-types-operation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* gap: 4rem; */
+            padding: 4rem;
+            margin-top: 4rem;
+        }
+
+        .rom-types, .rom-operation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .rom-types h2, .rom-operation h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+        }
+
+        .rom-types p, .rom-operation p {
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .rom-inside {
+            text-align: center;
+            /* padding: 4rem 0; */
+            max-width: 100%;
+            margin: 3rem auto 0 auto;
+        }
+
+        .rom-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 2rem 4rem;
+        }
+
+        .rom-images img {
+            width: 100%;
+            height: 200px; /* Fixed height for consistency */
+            object-fit: cover;
+            border-radius: 15px;
+            border: 2px solid rgb(255, 255, 255); /* Added border */
+        }
+
+        .large-placeholder {
+            width: 100%;
+            height: 350px; /* Increased from 400px */
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 2px solid rgb(0, 0, 0); /* Added border */
+        }
+
+        .rom-storage-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            align-items: start;
+        }
+
+        .rom-storage-text {
+            text-align: left;
+            padding-right: 2rem;
+            padding-top: 2rem;
+        }
+
+        .comparison-table {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        
+        /* Constellation Canvas */
+        #constellation-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .content-section, .additional-content-Ram, .additional-content-Rom {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Footer */
+        footer {
+            padding: 5rem 10% 2rem 10%;
+            background-color: #000000 !important;
+            color: white;
+            position: relative;
+            z-index: 2; /* Higher than constellation */
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-col h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-col a {
+            color: rgba(255, 255, 255, 0.397);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-col a:hover {
+            color: white;
+        }
+
+        .footer-col img{
+            transition: var(--transition);
+            filter: brightness(0) invert(1); /* Makes the images white */
+        }
+
+        .footer-col img:hover{
+            box-shadow: 0 0 35px var(--bg);
+            filter: brightness(0) invert(1); /* Keep images white on hover */
+        }
+
+        .copyright {
+            padding-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.875rem;
+        }
+        #additional-content{
+            background: transparent;
+            color: var(--text);
+        }
+
+        /* Add these styles for image zoom */
+        .zoom-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .zoomed-image {
+            max-width: 90%;
+            max-height: 90vh;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+        }
+
+        /* Add this to your existing styles section */
+        .comparison-table {
+            width: 100%;
+            margin: 2rem 0;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-table th {
+            background: rgba(255, 140, 0, 0.2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(255, 140, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="constellation-canvas"></canvas>
+    <!-- Add this HTML right after the body tag -->
+    <div class="zoom-overlay" id="imageZoomOverlay">
+        <img class="zoomed-image" id="zoomedImage" src="" alt="Zoomed image">
+    </div>
+    <!-- Header -->
+    <header id="header">
+        <a href="prinPage.html">
+            <div class="logo-container">
+                <svg width="33" height="43" viewBox="0 0 18 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.0023 4.86847C14.0023 4.27515 13.7658 3.70609 13.3447 3.2863L11.7281 1.67969L2.31641 11.0521C1.84958 11.5162 1.47921 12.0673 1.22652 12.674C0.973819 13.2808 0.84375 13.9312 0.84375 14.588C0.84375 15.2448 0.973819 15.8952 1.22652 16.502C1.47921 17.1087 1.84958 17.6598 2.31641 18.1238L3.89702 19.7011C3.69238 18.727 3.73484 17.7175 4.02053 16.7639C4.30622 15.8102 4.82614 14.9425 5.53327 14.2393L13.3447 6.45065C13.7658 6.03086 14.0023 5.4618 14.0023 4.86847ZM13.3424 11.0375C13.7649 11.4609 14.0022 12.0347 14.0022 12.6329C14.0022 13.2312 13.7649 13.805 13.3424 14.2284L9.38858 18.1839C8.8241 18.7451 8.37672 19.4129 8.07241 20.1486C7.76811 20.8842 7.61295 21.673 7.61595 22.4692C7.61692 22.8845 7.65997 23.2986 7.74446 23.7053L6.18599 22.1033C5.23793 21.1533 4.70544 19.8658 4.70544 18.5235C4.70544 17.1811 5.23793 15.8936 6.18599 14.9437L11.7279 9.40254L13.3424 11.0375ZM13.3021 22.7473C13.5238 22.9594 13.7 23.2126 13.8202 23.492C13.9405 23.7714 14.0024 24.0714 14.0024 24.3745C14.0024 24.6776 13.9405 24.9776 13.8202 25.257C13.7 25.5365 13.5238 25.7896 13.3021 26.0017L11.6954 27.5671L10.0621 25.9692C9.16557 25.092 8.63499 23.9208 8.57339 22.6831C8.51179 21.4454 8.92357 20.2295 9.72873 19.2716L13.3021 22.7473Z" fill="#fff"></path>
+                </svg>
+            </div>
+        </a>
+        <!-- New Search Bar -->
+        <form class="search-form" action="#" method="get">
+            <input type="search" name="query" placeholder="Căutare...">
+        </form>
+
+        <!-- Existing Mobile Menu Toggle -->
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <video autoplay muted loop playsinline>
+            <source src="memory3.mp4" type="video/mp4">
+        </video>
+        <h1>Memoria</h1>
+        <p>Clădirea digitală a amintirilor.</p>
+        <a href="#content" class="scroll-down">
+            <span>Scroll pentru a explora</span>
+        </a>
+    </section>
+
+    <!-- Main Content Sections -->
+    <main id="main-content">
+        <!-- Hardware Section -->
+        <section id="hardware" class="page-section hardware-section">
+            <!-- New Content Section with Triggers -->
+            <div class="content-section" id="content">
+                <div class="trigger white-trigger">
+                    <span style="color: rgb(255, 255, 255); font-size: 2.5rem; font-weight: 900;">Memoria RAM</span>
+                </div>
+                <div class="trigger black-trigger">
+                    <span style="color: white; font-size: 2.5rem; font-weight: 900;">Memoria ROM</span>
+                </div>
+            </div>
+
+            <div class="additional-content-Ram" id="additional-content">
+                <div class="content-grid">
+                    <!-- Title -->
+                    <div class="ram-title">
+                        <h2 class="title">Introducere în memoria RAM</h2>
+                    </div>
+
+                    <!-- RAM section -->
+                    <div class="ram-intro">
+                        <div class="text-content">
+                            <p>Memoria RAM (Random Access Memory) reprezintă memoria principală volatilă a sistemului, utilizată pentru stocarea temporară a datelor și instrucțiunilor accesate frecvent de către procesor. Aceasta acționează ca o zonă de lucru intermediară, mult mai rapidă decât un mediu de stocare non-volatil (ex. HDD/SSD), permițând execuția eficientă a aplicațiilor și a sistemului de operare.</p>
+                            <p>RAM-ul se încarcă automat la pornirea sistemului cu componente esențiale (ex: kernel-ul sistemului de operare, procesele de startup, interfața grafică), iar toate aplicațiile active rulează din această memorie. Deoarece este volatilă, conținutul RAM-ului se pierde la oprirea alimentării.</p>
+                        </div>
+                        <div class="large-placeholder">
+                            <img src="ramImage2.png" alt="RAM Memory">
+                        </div>
+                    </div>
+
+                    <!-- Types and Operation grid -->
+                    <div class="ram-types-operation">
+                        <div class="ram-types" style="border-right: 2px solid var(--text); text-align: right; padding-right: 15px;">
+                            <h2 style="color: white;text-align: right;margin-right: 30px;">Tipuri de RAM</h2>
+                            <p>Memoria RAM utilizată în sistemele moderne este de tip DRAM (Dynamic Random-Access Memory), o tehnologie care stochează datele prin sarcini electrice în condensatori. Din cauza caracterului volatil și a scurgerii naturale a sarcinii electrice, DRAM necesită un ciclu continuu de refresh (reîmprospătare) pentru a menține integritatea datelor stocate.
+
+                        Cel mai răspândit standard al acestei tehnologii este SDRAM (Synchronous DRAM), care funcționează în sincron cu frecvența magistralei de sistem (bus), permițând un control precis și o coordonare eficientă între memoria RAM și controlerul de memorie al procesorului. Această sincronizare reduce latențele și optimizează fluxul de date între componente.
+
+                        Evoluția SDRAM a dus la dezvoltarea seriei DDR (Double Data Rate), care dublează rata de transfer a datelor, permițând transmiterea acestora atât pe frontul de creștere, cât și pe cel de descreștere al semnalului de ceas. Standardele DDR au avansat de la DDR1 până la DDR5, fiecare generație aducând îmbunătățiri semnificative în ceea ce privește frecvența de operare (ajungând până la 6400 MHz în cazul DDR5), eficiența energetică, lățimea de bandă și capacitatea per modul.
+
+                        Aceste module de memorie sunt implementate sub forma DIMM (Dual Inline Memory Module) pentru platformele desktop, care dispun de 240 până la 288 de pini, sau SODIMM (Small Outline DIMM) pentru laptopuri și sisteme compacte, cu un format redus și un număr mai mic de pini (ex. 204 sau 260, în funcție de standardul DDR utilizat). Aceste module sunt componente esențiale în arhitectura de memorie a oricărui sistem de calcul modern.
+                    </p>
+                        </div>
+                        <div class="ram-operation" style="border-left: 2px solid var(--text); text-align: left; padding-left: 15px;">
+                            <h2 style="color: white;text-align: left;margin-left: 30px;">Funcționarea memoriei RAM</h2>
+                            <p>Tot ceea ce este vizualizat la nivelul interfeței grafice – de la ferestrele aplicațiilor, până la elementele de sistem precum bara de activități, meniul Start sau pictogramele – reprezintă output-ul direct al unor procese active care rulează în spațiul de adresare al memoriei RAM. Aceste procese sunt instanțe ale unor aplicații sau servicii care au fost încărcate din mediul de stocare persistent (HDD/SSD) în memoria volatilă, pentru a putea fi executate în mod eficient.
+
+                            Unitatea centrală de procesare (CPU) nu accesează direct fișierele stocate pe dispozitivele de stocare de masă în timpul ciclului normal de execuție. Datorită timpilor mari de acces specifici acestor dispozitive, sistemul de operare intermediază transferul datelor prin copierea segmentelor relevante în memoria RAM, unde viteza de acces este semnificativ mai mare (cu ordinul de mii de ori). Doar în această zonă de memorie, procesorul poate efectua rapid operațiile de citire/scriere necesare pentru execuția instrucțiunilor, manipularea datelor și gestionarea contextului aplicațiilor.
+
+                            Această arhitectură, denumită model Von Neumann, presupune separarea clară între spațiul de stocare pe termen lung și memoria de lucru (working memory), unde toate procesele aflate în execuție activă trebuie să fie complet sau parțial rezidente pentru a putea funcționa. Lipsa spațiului în RAM duce la utilizarea memoriei virtuale, prin mecanismul de paging, ceea ce implică scrierea temporară a unor segmente de memorie pe disc (pagefile), cu penalități semnificative de performanță.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Inside RAM section -->
+                    <div class="ram-inside">
+                        <h2 style="color: white; font-size: 2.5rem; margin-top: 10rem;">În interiorul memoriei RAM</h2>
+                        <p>La nivel arhitectural, memoria RAM este organizată sub forma unei matrici bidimensionale de celule de memorie, unde fiecare celulă stochează un bit (valoare binară 0 sau 1). Aceste celule sunt aranjate în rânduri și coloane, iar accesarea unei locații specifice implică selectarea simultană a unui rând și a unei coloane. Fiecare celulă are o adresă unică, exprimată convențional în sistem hexazecimal, care permite identificarea exactă în spațiul de memorie.
+
+                        Pentru a accesa datele, procesorul utilizează magistrala de adresă și generează semnale de control: RAS (Row Address Strobe) pentru activarea rândului, și CAS (Column Address Strobe) pentru selectarea coloanei. Aceste semnale sincronizează operațiile de citire sau scriere cu ciclurile de ceas ale memoriei.
+
+                        Datele sunt apoi transmise prin magistrala de date. Întregul proces este temporizat de controller-ul de memorie, care asigură coerența și ordinea accesărilor. Timpii asociați acestor operații contribuie la latența totală a memoriei, măsurată prin indicatori precum CAS Latency (CL). Această arhitectură permite acces rapid și aleatoriu la orice locație din RAM, esențial pentru performanța sistemului.
+                        </p>
+                        <div class="ram-images">
+                            <img src="insideRam1.png" alt="Inside RAM 1">
+                            <img src="insideRam2.png" alt="Inside RAM 2">
+                            <img src="insideRam3.png" alt="Inside RAM 3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROM section -->
+            <div class="additional-content-Rom" id="additional-content">
+                <div class="content-grid">
+                    <!-- Title -->
+                    <div class="rom-title">
+                        <h2 class="title">Introducere în memoria ROM</h2>
+                    </div>
+
+                    <!-- Introduction section -->
+                    <div class="rom-intro">
+                        <div class="text-content">
+                            <p>Memoria ROM (Read-Only Memory) reprezintă memoria principală non-volatilă a sistemului, utilizată pentru stocarea permanentă a datelor și instrucțiunilor esențiale pentru funcționarea sistemului. Aceasta acționează ca o zonă de stocare de lungă durată, mult mai lentă decât un mediu de stocare volatil (ex. RAM), permițând păstrarea informațiilor chiar și în absența alimentării electrice.</p>
+                            <p>ROM-ul se încarcă automat la pornirea sistemului cu componente esențiale (ex: firmware-ul sistemului de operare, driverele hardware), iar toate aplicațiile active rulează din această memorie. Deoarece este non-volatilă, conținutul ROM-ului se păstrează la oprirea alimentării.</p>
+                        </div>
+                        <div class="large-placeholder">
+                            <img src="romImage.png" alt="ROM Memory">
+                        </div>
+                    </div>
+
+                    <!-- Types and Operation grid -->
+                    <div class="rom-types-operation">
+                        <div class="rom-types" style="border-right: 2px solid var(--text); text-align: right; padding-right: 15px;">
+                            <h2 style="color: white;text-align: right;margin-right: 30px;">Tipuri de ROM</h2>
+                            <p>Memoria ROM (Read-Only Memory) este disponibilă în mai multe variante tehnologice, cea de bază fiind PROM (Programmable ROM), care permite o singură programare permanentă a datelor după fabricație. O evoluție a acestui standard este EPROM (Erasable Programmable ROM), care suportă ștergerea și reprogramarea conținutului prin expunere la radiații UV. Versiunile moderne includ EEPROM (Electrically Erasable Programmable ROM), care permite ștergerea și reprogramarea electrică la nivel de octet, oferind flexibilitate crescută. O formă avansată de EEPROM este memoria flash, caracterizată prin densitate mare de stocare și posibilitatea de ștergere/reprogramare în blocuri, fiind utilizată extensiv în dispozitive de stocare precum SSD-urile, stick-urile USB și cardurile de memorie.</p>
+                        </div>
+                        <div class="rom-operation" style="border-left: 2px solid var(--text); text-align: left; padding-left: 15px;">
+                            <h2 style="color: white;text-align: left;margin-left: 30px;">Funcționarea memoriei ROM</h2>
+                            <p>Tot ceea ce este afișat la nivelul interfeței grafice a utilizatorului reprezintă rezultatul execuției proceselor active, care sunt încărcate și gestionate în memoria volatilă de tip RAM. În timpul rulării aplicațiilor, unitatea centrală de procesare (CPU) nu accesează direct dispozitivele de stocare de masă (HDD/SSD), ci operează exclusiv asupra datelor transferate anterior în memoria principală (RAM), unde acestea pot fi accesate rapid. Memoria ROM, fiind o memorie non-volatilă și statică, are rol strict în inițializarea sistemului (prin firmware-ul BIOS/UEFI), și nu este implicată în execuția curentă a aplicațiilor sau afișarea conținutului grafic.</p>
+                        </div>
+                    </div>
+
+                    <!-- Inside ROM section -->
+                    <div class="rom-inside">
+                        <h2 style="font-size: 2.5rem;">HDD si SSD</h2>
+                        <div class="rom-storage-section">
+                            <div class="rom-storage-text">
+                                <p>În cadrul arhitecturii unui sistem de calcul, unitățile de stocare de masă joacă un rol esențial în păstrarea permanentă a datelor și a fișierelor de sistem. Cele două tehnologii dominante în acest domeniu sunt HDD (Hard Disk Drive) și SSD (Solid State Drive), fiecare cu particularități arhitecturale și funcționale distincte.
+
+                                HDD-urile utilizează un mecanism electromecanic format din platane magnetice rotative și un braț actuator cu capete de citire/scriere. Viteza de acces este mai redusă, iar performanța depinde de turația platanului și de poziționarea mecanică a capului de citire. Cu toat,e acestea, HDD-urile rămân o soluție eficientă din punct de vedere al costului per GB, fiind potrivite pentru stocarea de mari dimensiuni.
+
+                                SSD-urile, în schimb, sunt bazate pe memorie NAND flash și nu au componente în mișcare. Acestea oferă timpi de acces mult mai reduși, o rată de transfer superioară și o fiabilitate crescută în condiții de vibrație sau șoc mecanic. Accesul la date se realizează electronic, prin intermediul unui controller dedicat, coordonat de firmware stocat într-o memorie ROM internă.
+
+                                În arhitectura modernă a sistemelor de calcul, SSD-urile sunt preferate pentru sistemul de operare și aplicațiile frecvent utilizate, în timp ce HDD-urile sunt adesea păstrate ca soluții de stocare secundară, pentru arhivare sau backup. Alegerea între HDD și SSD influențează direct performanța generală a sistemului, timpii de boot și fluiditatea în rularea aplicațiilor.</p>
+                                
+                                <!-- Add image placeholder -->
+                                <div class="storage-image-placeholder">
+                                    <img src="hddssd.png" alt="HDD vs SSD Comparison" style="width: 100%; height: 350px; object-fit: cover; border-radius: 10px; margin: 3rem 0; border: 2px solid rgba(255, 255, 255, 0.2);">
+                                </div>
+                            </div>
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Caracteristică</th>
+                                        <th>HDD (Hard Disk Drive)</th>
+                                        <th>SSD (Solid State Drive)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tehnologie</td>
+                                        <td>Mecanică (platane magnetice)</td>
+                                        <td>Electronică (memorie NAND flash)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Viteză de acces</td>
+                                        <td>Lentă (5–15 ms)</td>
+                                        <td>Rapidă (&lt;0.1 ms)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rată de transfer</td>
+                                        <td>80–160 MB/s (SATA)</td>
+                                        <td>500 MB/s – 7.000 MB/s (SATA/NVMe)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fiabilitate mecanică</td>
+                                        <td>Sensibil la șocuri și vibrații</td>
+                                        <td>Rezistent la șocuri (fără piese mobile)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Consumul de energie</td>
+                                        <td>Mai ridicat</td>
+                                        <td>Mai redus</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Durată de viață</td>
+                                        <td>Limitată de uzura mecanică</td>
+                                        <td>Limitată de numărul de cicluri de scriere</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Capacitate de stocare</td>
+                                        <td>500 GB – 20 TB</td>
+                                        <td>128 GB – 4 TB (uz general)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cost per GB</td>
+                                        <td>Mai redus</td>
+                                        <td>Mai ridicat</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zgomot</td>
+                                        <td>Perceptibil (platane în mișcare)</td>
+                                        <td>Silențios</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aplicații recomandate</td>
+                                        <td>Arhivare, backup, fișiere mari</td>
+                                        <td>Sistem de operare, aplicații, gaming</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+        <footer>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; margin-top: 4rem;">Resursă educațională despre sistemele de calcul.</p>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>Link-uri rapide</h3>
+                    <ul>
+                        <li><a href="prinPage.html">Hardware</a></li>
+                        <li><a href="prinPage.html">Software</a></li>
+                        <li><a href="prinPage.html">Galerie</a></li>
+                        <li><a href="prinPage.html">Despre</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>Resurse</h3>
+                    <ul>
+                        <li><a href="Documentatie atestat.pdf" target="_blank">Documentație</a></li>
+                        <li><a href="#">Alte proiecte ale autorului</a></li>
+                    </ul>
+                </div>
+    
+                <div class="footer-col">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><a href="#">person@gmail.ro</a></li>
+                        <li>
+                            <a href="https://www.instagram.com" target="_blank">
+                                <img src="instaLogoRound.png" alt="Instagram" style="width: 30px; height: 30px; margin-right: 10px;">
+                            </a>
+                            <a href="#" target="_blank">
+                                <img src="facebook (4).png" alt="Facebook" style="width: 30px; height: 30px; margin-right: 10px;">
+                            </a>
+                            <a href="#" target="_blank">
+                                <img src="github-sign.png" alt="Git hub" style="width: 30px; height: 30px; margin-right: 10px;">
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="copyright">
+                    &copy; 2025 highSchoolFinalProject. All rights reserved.
+                </div>
+            </footer>
+
+    <script>
+        const whiteTrigger = document.querySelector('.white-trigger');
+        const blackTrigger = document.querySelector('.black-trigger');
+        const additionalContentRam = document.querySelector('.additional-content-Ram');
+        const additionalContentRom = document.querySelector('.additional-content-Rom');
+
+        // Hide both sections by default
+        additionalContentRam.style.display = 'none';
+        additionalContentRom.style.display = 'none';
+
+        // Handle RAM trigger (white)
+        whiteTrigger.addEventListener('click', function() {
+            if (additionalContentRam.style.display === 'block') {
+                additionalContentRam.style.display = 'none';
+            } else {
+                additionalContentRam.style.display = 'block';
+                additionalContentRom.style.display = 'none';                
+                // Make all text in RAM section black
+                const ramContent = document.querySelectorAll('.ram-title *, .ram-intro *, .ram-types-operation *, .ram-inside *');
+                ramContent.forEach(element => {
+                    element.style.color = 'white';
+                });
+            }
+        });
+
+        // Handle ROM trigger (black)
+        blackTrigger.addEventListener('click', function() {
+            if (additionalContentRom.style.display === 'block') {
+                additionalContentRom.style.display = 'none';
+            } else {
+                additionalContentRom.style.display = 'block';
+                additionalContentRam.style.display = 'none';
+                
+                // Make all text in ROM section white
+                const romContent = document.querySelectorAll('.rom-title *, .rom-intro *, .rom-types-operation *, .rom-inside *');
+                romContent.forEach(element => {
+                    element.style.color = 'white';
+                });
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                // Adjust selector for sections if needed
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    // Calculate offset dynamically based on header height
+                    const headerOffset = document.getElementById('header').offsetHeight || 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Constellation Animation
+        const canvas = document.getElementById('constellation-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        // Updated particle settings
+        let particles = [];
+        const particleCount = 150; // Increased count
+        const connectionDistance = 200; // Increased connection distance
+        const moveSpeed = 1.2; // Increased speed
+        const particleSize = 2.5; // Larger particles
+        const particleOpacity = 0.8; // More visible particles
+        const lineOpacity = 0.4; // More visible connections
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * moveSpeed;
+                this.vy = (Math.random() - 0.5) * moveSpeed;
+                this.size = Math.random() * particleSize + 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off edges
+                if (this.x < 0 || this.x > width) this.vx = -this.vx;
+                if (this.y < 0 || this.y > height) this.vy = -this.vy;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 140, 0, ${particleOpacity})`; // Orange with higher opacity
+                ctx.fill();
+            }
+        }
+
+        // Initialize particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+
+                // Draw connections
+                particles.forEach(otherParticle => {
+                    const dx = particle.x - otherParticle.x;
+                    const dy = particle.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 140, 0, ${lineOpacity * (1 - distance/connectionDistance)})`;
+                        ctx.lineWidth = 2; // Thicker lines
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Start animation
+        animate();
+
+        // Add this new code for image zoom functionality
+        const overlay = document.getElementById('imageZoomOverlay');
+        const zoomedImage = document.getElementById('zoomedImage');
+        const ramImages = document.querySelectorAll('.ram-images img');
+
+        ramImages.forEach(img => {
+            img.addEventListener('click', function() {
+                zoomedImage.src = this.src;
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        overlay.addEventListener('click', function() {
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && overlay.style.display === 'block') {
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>
+</body>
+</html>
